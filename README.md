@@ -2,10 +2,10 @@
 
 # Авторизация
     * /auth
-        * /signin
-            * Вход: 
-                * username, password
-            * Выход:
-                * user, token 
-                * tfa
+    * /signin
+    * Вход: 
+    * username, password
+    * Выход:
+    * user, token 
+    * tfa
     
