@@ -29,6 +29,7 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
         if(!user){ return res.status(404).json({ message: 'Wrong username or password'}); }
         if(!user.validatePassword(req.body.password)){ return res.status(400).json({ message: 'Wrong username or password' }); }
         let token = jwt.getToken(user.toJSON());
+        if(user.totp){ return res.redirect(307, '/auth/2fa'); }
         return res.json({ token, user: user.toJSON() });
     } catch(error){
         return res.status(500).json({ message: 'Server error' });
@@ -39,7 +40,7 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
 _route.post('/logout', _ifAuthed, (req, res) => { return res.json({ message: 'You are logged out' }) });
 
 // Получение информации о пользователе
-_route.post('/user', _ifAuthed, (req, res) => { 
+_route.get('/user', _ifAuthed, (req, res) => { 
     try {
         let user = jwt.checkToken(req.token);
         return res.json({ user, token: req.token }); 
@@ -48,5 +49,16 @@ _route.post('/user', _ifAuthed, (req, res) => {
     }
 });
 
+_route.post('/2fa', _ifNotAuthed, async (req, res) => {
+    try {
+        if(!req.body.code){ return res.status(400).json({ message: 'Invalid code' }); }
+        // Проверять qr code
+        const token = "";
+        const user = {};
+        return res.json({ user, token });
+    } catch(error) {
+        return res.status(500).json({ message: "Server error "});
+    }
+});
 
 module.exports = _route;

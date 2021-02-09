@@ -10,5 +10,9 @@
     "server": {
         "port": 4000
     },
-    "jwtSecret": "JSON-web-TOKEN-Secret-Code_BattleCraft_Site-Minecraft"
+    "jwtSecret": "JSON-web-TOKEN-Secret-Code_BattleCraft_Site-Minecraft",
+    "googleAuth": {
+        "length": 50,
+        "name": "Battlecraft"
+    }
 }

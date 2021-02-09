@@ -21,6 +21,18 @@ const User = sequelize.define('User', {
             this.setDataValue('password', hash);
         }
     },
+    email: {
+        type: DataTypes.STRING(255),
+        defaultValue: ''
+    },
+    tfaSecret: {
+        type: DataTypes.STRING(255),
+        defaultValue: ''
+    },
+    tfaType: {
+        type: DataTypes.STRING,
+        defaultValue: 'none'
+    },
     vip: {
         type: DataTypes.NUMBER,
         defaultValue: 0
