@@ -2,6 +2,10 @@ const { sequelize, DataTypes } = require('../database');
 const bcrypt = require('bcrypt');
 
 const User = sequelize.define('User', {
+    id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true
+    },
     username: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -22,6 +26,10 @@ const User = sequelize.define('User', {
         }
     },
     email: {
+        type: DataTypes.STRING(255),
+        defaultValue: ''
+    },
+    emailCode: {
         type: DataTypes.STRING(255),
         defaultValue: ''
     },

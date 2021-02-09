@@ -1,6 +1,8 @@
 const _route    = require('express').Router();
 const User      = require('../database/models/User');
+const Temp2fa   = require('../database/models/Temp2fa');
 const jwt       = require('../utils/jwt');
+const tfa       = require('../utils/2fa');
 
 _route.post('/:id', (req, res) => {
     try {
@@ -9,11 +11,16 @@ _route.post('/:id', (req, res) => {
         delete user.password;
         delete user.donateMoney;
         delete user.username;
+        delete user.tfaType;
+        delete user.tfaSecret;
+        delete user.emailCode;
         return res.json(user);
     } catch (error) {
         return res.status(500).json({ message: 'Server error' });
     }
 });
+
+// Сменить пароль
 _route.post('/changepassword', async (req, res) => {
     try {
         if(!req.body){ return res.status(400).json({ message: 'Password empty' }); }
@@ -34,6 +41,67 @@ _route.post('/changepassword', async (req, res) => {
         return res.status(500).json({ message: "Couldn't change password" });
     }
 });
+
+// Сменить скин
 _route.post('/changeskin', (req, res) => {});
+
+// Включить или отключить 2fa
+_route.get('/2fa', async (req, res) => {
+    try {
+        if(!req.query.type){ return res.status(400).json({ message: "Parameter 'type' required" }); }
+        let temp2fa = await Temp2fa.findOne({ where: {userId: req.user.id} });
+        if(temp2fa){ return res.status(403).json({ message: 'You already get 2fa-confirm-code' }); }
+        switch(req.query.type){
+            case 'email': {
+                // Посылать код на почту, код
+            }
+            case 'google': {
+                let data        = await tfa.generateQrCode();
+                await Temp2fa.create({
+                    userId: req.user.id,
+                    type: req.query.type,
+                    code: data.secret,
+                    expires: new Date().getTime() + 1000 * 60 * 60 * 5
+                });
+                return res.json({ qrcode: data.imageCode });
+            }
+            case 'none': {
+                let user        = await User.findOne({ where: {id: req.user.id} });
+                user.tfaType    = 'none';
+                user.tfaSecret  = '';
+                return res.json({ message: '2fa auth disabled' });
+            }
+            default: { return res.status(400).json({ message: "Undefined type 'type'" }) }
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Подтверждение включения 2fa-авторизации
+_route.post('/2fa/confirm', async (req, res) => {
+    try {
+        if(!req.body.code){ return res.status(400).json({ message: '2fa-confirm-code required' }) }
+        let temp2fa = await Temp2fa.findOne({ where: {userId: req.userId} });
+        if(!temp2fa){ return res.status(403).json({ message: "First, get 2fa-confirm-code" }); }
+        if(temp2fa.type == 'email'){
+            // Сравнить введенный код
+        }
+        if(temp2fa.type == 'google'){
+            let check = tfa.checkCode(req.body.code, temp2fa.code);
+            if(check){
+                let user        = await User.findOne({ where: {id: req.user.id} });
+                user.tfaType    = temp2fa.type;
+                user.tfaSecret  = temp2fa.code;
+                await user.save();
+                return res.json({ message: "TFA Enabled" });
+            } else {
+                return res.status(400).json({ message: "2fa-confirm-code doesn't match" });
+            }
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
 
 module.exports = _route;
