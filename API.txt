@@ -1,0 +1,34 @@
+/auth
+    POST /signup - Регистрация
+        Вход: username, password
+        Выход: user, token
+    POST /signin
+        Вход: username, password
+        Выход: ( user, token, tfa: false ) или (user: {}, token: "", tfa: true) 
+    POST /logout
+        Вход: -
+        Выход: message
+    GET /user
+        user, token
+    POST /2fa
+        Вход: username, password, code
+        Выход: user, token
+
+=====================================================
+
+/user
+    /POST changepassword
+        Вход: new_password, old_password, old_password_accept
+        Выход: token, user
+    POST /changeskin
+        Вход: -
+        Выход: -
+    GET /2fa
+        Вход: type
+        Выход:
+            type = google: qrcode
+            type = email: -
+            type = none: message
+    POST /2fa/confirm
+        Вход: code
+        Выход: message
