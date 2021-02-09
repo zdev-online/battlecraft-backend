@@ -114,7 +114,7 @@ setInterval(async () => {
         await Temp2fa.destroy({ 
             where: { 
                 expires: {
-
+                    [Op.lte]: new Date().getTime()
                 } 
             } 
         });
