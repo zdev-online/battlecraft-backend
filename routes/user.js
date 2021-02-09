@@ -3,6 +3,8 @@ const User      = require('../database/models/User');
 const Temp2fa   = require('../database/models/Temp2fa');
 const jwt       = require('../utils/jwt');
 const tfa       = require('../utils/2fa');
+const mailer    = require('../utils/mailer');
+const { Op }    = require('sequelize');
 
 _route.post('/:id', (req, res) => {
     try {
@@ -53,7 +55,10 @@ _route.get('/2fa', async (req, res) => {
         if(temp2fa){ return res.status(403).json({ message: 'You already get 2fa-confirm-code' }); }
         switch(req.query.type){
             case 'email': {
-                // Посылать код на почту, код
+                // if(!req.query.email || !req.user.email){ return res.status(400).json({ message: "Parameter 'email' required"}); }
+                // let code = Math.round(Math.random() * 1000000);
+                // let info = await mailer.send(req.query.email,);
+                
             }
             case 'google': {
                 let data        = await tfa.generateQrCode();
@@ -103,5 +108,20 @@ _route.post('/2fa/confirm', async (req, res) => {
         return res.status(500).json({ message: 'Server error' });
     }
 });
+
+setInterval(async () => {
+    try {
+        await Temp2fa.destroy({ 
+            where: { 
+                expires: {
+
+                } 
+            } 
+        });
+    } catch (error) {
+        console.log(`Не удалось удалить временные 2fa-коды-подтверждения`);
+    }
+}, 1000 * 60 * 60 * 5);
+
 
 module.exports = _route;

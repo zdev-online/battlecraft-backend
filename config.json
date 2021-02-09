@@ -14,5 +14,15 @@
     "googleAuth": {
         "length": 50,
         "name": "Battlecraft"
+    },
+    "mailer": {
+        "host": "",
+        "port": 587,
+        "secure": false,
+        "auth": {
+            "user": "",
+            "pass": ""
+        },
+        "from": ""
     }
 }
