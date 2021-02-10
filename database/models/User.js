@@ -42,7 +42,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         defaultValue: 'none'
     },
-    vip: {
+    vipLevel: {
         type: DataTypes.NUMBER,
         defaultValue: 0
     },
@@ -58,7 +58,7 @@ User.prototype.validatePassword = function(candidate){
     return bcrypt.compareSync(candidate, this.password);
 }
 
-User.sync().catch((error) => {
+User.sync({ force: true }).catch((error) => {
     console.error(`Не удалось синхронизировать модель и таблицу 'Users'\n${error}`);
 })
 

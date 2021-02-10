@@ -37,7 +37,7 @@ const News = sequelize.define('News', {
     tableName: 'news'
 });
 
-News.sync().catch((error) => {
+News.sync({ force: true }).catch((error) => {
     console.error(`Не удалось синхронизировать модель и таблицу 'News'\n${error}`);
 })
 

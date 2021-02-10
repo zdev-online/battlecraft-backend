@@ -23,7 +23,7 @@ const Server = sequelize.define('Server', {
     tableName: 'servers'
 });
 
-Server.sync().catch((error) => {
+Server.sync({ force: true }).catch((error) => {
     console.error(`Не удалось синхронизировать модель и таблицу 'Server'\n${error}`);
 })
 
