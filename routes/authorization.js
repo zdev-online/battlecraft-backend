@@ -68,8 +68,7 @@ _route.post('/2fa', _ifNotAuthed, async (req, res) => {
         delete user.tfaSecret;
         delete user.tfaType;
         delete user.emailCode;
-        const user = user.toJSON();
-        return res.json({ user, token });
+        return res.json({ user: user.toJSON(), token });
     } catch(error) {
         return res.status(500).json({ message: "Server error "});
     }

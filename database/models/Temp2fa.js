@@ -3,7 +3,8 @@ const { sequelize, DataTypes } = require('../database');
 const Temp2fa = sequelize.define('Temp2fa', {
     id: {
         type: DataTypes.BIGINT(255),
-        autoIncrement: true
+        autoIncrement: true,
+        primaryKey: true
     },
     userId: {
         type: DataTypes.BIGINT(255),
@@ -26,5 +27,7 @@ const Temp2fa = sequelize.define('Temp2fa', {
         allowNull: false
     }
 });
+
+
 
 module.exports = Temp2fa;

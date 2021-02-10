@@ -16,8 +16,8 @@ const UserRoute     = require('./routes/user');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
-const ifNotAuthed  = require('../middlewares/ifNotAuthed');
-const ifAuthed     = require('../middlewares/ifAuthed');
+const ifNotAuthed   = require('./middlewares/ifNotAuthed');
+const ifAuthed      = require('./middlewares/ifAuthed');
 
 // Settings
 moment.locale('ru');
@@ -34,7 +34,7 @@ app.all('/', (req, res) => res.json({ date: moment() }));
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/user', ifAuthed, UserRoute);
-app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
+app.use((req, res) => res.status(404).json({ message: 'Method not found'}));
 
 // API - Server start
 server.listen(config.server.port, () => {

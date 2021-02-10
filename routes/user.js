@@ -6,7 +6,7 @@ const tfa       = require('../utils/2fa');
 const mailer    = require('../utils/mailer');
 const { Op }    = require('sequelize');
 
-_route.post('/:id', (req, res) => {
+_route.post('/:id', async (req, res) => {
     try {
         let user = await User.findOne({ where: { id: req.params.id } });
         if(!user){ return res.status(404).json({ message: 'User not found!' }); }

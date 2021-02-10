@@ -3,8 +3,9 @@ const bcrypt = require('bcrypt');
 
 const User = sequelize.define('User', {
     id: {
-        type: DataTypes.BIGINT,
-        autoIncrement: true
+        type: DataTypes.BIGINT(255),
+        autoIncrement: true,
+        primaryKey: true
     },
     username: {
         type: DataTypes.STRING,
@@ -54,5 +55,9 @@ const User = sequelize.define('User', {
 User.prototype.validatePassword = function(candidate){
     return bcrypt.compareSync(candidate, this.password);
 }
+
+User.sync().catch((error) => {
+    console.error(`Не удалось синхронизировать модель и таблицу 'Users'\n${error}`);
+})
 
 module.exports = User;

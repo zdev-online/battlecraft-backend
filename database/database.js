@@ -8,7 +8,9 @@ const sequelize = new Sequelize(config.database);
         await sequelize.authenticate();
         await sequelize.sync();
     } catch (error) {
-        throw new Error(`Не удалось подлючиться к БД: ${error}`);
+        console.error(`Не удалось подлючиться к БД: ${error.message}`);
+        console.error(`Stack: ${error.stack}`);
+        return process.exit(-1);
     }
 })();
 
