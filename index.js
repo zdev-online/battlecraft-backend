@@ -13,6 +13,7 @@ const server    = http.createServer(app);
 const AuthRoute     = require('./routes/authorization');
 const NewsRoute     = require('./routes/news');
 const UserRoute     = require('./routes/user');
+const ShopRoute     = require('./routes/shop');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
@@ -30,10 +31,11 @@ app.use(bodyParse.json());
 app.use(parseToken);
 
 // Use Routes
-app.all('/', (req, res) => res.json({ date: moment() }));
+app.all('/', (req, res) => res.json({ date: moment(), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/user', ifAuthed, UserRoute);
+app.use('/shop', ShopRoute);
 app.use((req, res) => res.status(404).json({ message: 'Method not found'}));
 
 // API - Server start

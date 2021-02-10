@@ -4,6 +4,7 @@ const _ifAuthed     = require('../middlewares/ifAuthed');
 const User          = require('../database/models/User');
 const jwt           = require('../utils/jwt');
 const tfa           = require('../utils/2fa');
+const mailer        = require('../utils/mailer');
 
 // Регистрация
 _route.post('/signup', _ifNotAuthed, async (req, res) => {
@@ -32,9 +33,18 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
         if(user.tfaType != 'none'){ 
             if(user.tfaType == 'email'){
                 // Отправить код
+                let code = Math.round(Math.random() * 1000000);
+                user.emailCode = code;
+                await mailer.send(user.email, `Battle Craft`, `Код для авторизации: ${code}`, `
+                    <h1>Battle Craft - Авторизация</h1>
+                    <h3>Ваш код для авторизации: <b>${code}</b></h3>
+                `);
+                await user.save();
             }
             return res.json({ token: "", user: {}, tfa: true }); 
         }
+        delete user.tfaSecret;
+        delete user.emailCode;
         return res.json({ token, user: user.toJSON(), tfa: false });
     } catch(error){
         return res.status(500).json({ message: 'Server error' });
@@ -62,15 +72,19 @@ _route.post('/2fa', _ifNotAuthed, async (req, res) => {
         if(!req.body.password){ return res.status(400).json({ message: "Password required"}); }
         let user = await User.findOne({ where: { username: req.body.username }});
         if(user.tfaType == 'google'){
-            if(!tfa.checkCode(req.body.code, user.tfaSecret)){ return res.status(400).json({ message: "2f-confirm-code doesn`t match"}) }
+            if(!tfa.checkCode(req.body.code, user.tfaSecret)){ return res.status(403).json({ message: "2f-confirm-code doesn`t match"}) }
+        }
+        if(user.tfaType == 'email'){
+            if(user.emailCode != req.body.code){ return res.status(403).json({ message: "2f-confirm-code doesn`t match"}); }
+            user.emailCode = '';
+            await user.save();
         }
         const token = jwt.getToken(user.toJSON());
         delete user.tfaSecret;
-        delete user.tfaType;
         delete user.emailCode;
         return res.json({ user: user.toJSON(), token });
     } catch(error) {
-        return res.status(500).json({ message: "Server error "});
+        return res.status(500).json({ message: "Server error"});
     }
 });
 
