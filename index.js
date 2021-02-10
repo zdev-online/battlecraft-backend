@@ -19,6 +19,7 @@ const ShopRoute     = require('./routes/shop');
 const parseToken    = require('./middlewares/parseToken');
 const ifNotAuthed   = require('./middlewares/ifNotAuthed');
 const ifAuthed      = require('./middlewares/ifAuthed');
+const logger        = require('./middlewares/logger');
 
 // Settings
 moment.locale('ru');
@@ -29,9 +30,10 @@ app.use(cors());
 app.use(bodyParse.urlencoded({extended: true}));
 app.use(bodyParse.json());
 app.use(parseToken);
+app.use(logger);
 
 // Use Routes
-app.all('/', (req, res) => res.json({ date: moment(), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
+app.all('/', (req, res) => res.json({ date: moment().format("HH:mm:ss, DD.MM.YYYY a"), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/user', ifAuthed, UserRoute);

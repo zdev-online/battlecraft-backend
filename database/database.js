@@ -10,7 +10,7 @@ const sequelize = new Sequelize(config.database);
     } catch (error) {
         console.error(`Не удалось подлючиться к БД: ${error.message}`);
         console.error(`Stack: ${error.stack}`);
-        return process.exit(-1);
+        // return process.exit(-1);
     }
 })();
 
