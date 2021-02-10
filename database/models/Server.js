@@ -19,6 +19,8 @@ const Server = sequelize.define('Server', {
         defaultValue: false,
         allowNull: false
     }
+}, {
+    tableName: 'servers'
 });
 
 Server.sync().catch((error) => {

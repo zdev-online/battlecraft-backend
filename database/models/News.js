@@ -33,6 +33,8 @@ const News = sequelize.define('News', {
         defaultValue: false,
         allowNull: false
     }
+}, {
+    tableName: 'news'
 });
 
 News.sync().catch((error) => {

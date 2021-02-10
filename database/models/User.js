@@ -50,6 +50,8 @@ const User = sequelize.define('User', {
         type: DataTypes.BIGINT(50),
         defaultValue: 0
     }
+}, {
+    tableName: 'users'
 });
 
 User.prototype.validatePassword = function(candidate){

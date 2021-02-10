@@ -26,6 +26,8 @@ const Temp2fa = sequelize.define('Temp2fa', {
         type: DataTypes.STRING(255),
         allowNull: false
     }
+}, {
+    tableName: "temp2fa"
 });
 
 
