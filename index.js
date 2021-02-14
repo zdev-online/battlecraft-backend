@@ -17,7 +17,7 @@ const ShopRoute     = require('./routes/shop');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
-const ifNotAuthed   = require('./middlewares/ifNotAuthed');
+// const ifNotAuthed   = require('./middlewares/ifNotAuthed');
 const ifAuthed      = require('./middlewares/ifAuthed');
 const logger        = require('./middlewares/logger');
 
