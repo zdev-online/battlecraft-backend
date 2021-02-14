@@ -14,7 +14,7 @@ _route.post('/signup', _ifNotAuthed, async (req, res) => {
         if(!req.body.username.length || !req.body.password.length){ return res.status(400).json({ message: 'Empty username or password' }); }
         let user    = await User.create({ username: req.body.username, password: req.body.password });
         let token   = jwt.getToken(user.toJSON());
-        return res.json({ token, user: user.toJSON() });
+        return res.json({ token });
     } catch (error){
         if(error.code){ return res.status(error.code).json({ message: error.message }) }
         return res.status(500).json({ message: 'Server error' });
@@ -41,11 +41,9 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
                 `);
                 await user.save();
             }
-            return res.json({ token: "", user: {}, tfa: true }); 
+            return res.json({ token: "", tfa: true }); 
         }
-        delete user.tfaSecret;
-        delete user.emailCode;
-        return res.json({ token, user: user.toJSON(), tfa: false });
+        return res.json({ token });
     } catch(error){
         return res.status(500).json({ message: 'Server error' });
     }
@@ -57,8 +55,7 @@ _route.post('/logout', _ifAuthed, (req, res) => { return res.json({ message: 'Yo
 // Получение информации о пользователе
 _route.get('/user', _ifAuthed, (req, res) => { 
     try {
-        let user = jwt.checkToken(req.token);
-        return res.json({ user, token: req.token }); 
+        return res.json({ user: req.user, token: req.token }); 
     } catch (error) {
         return res.status(500).json({ message: 'Server error' });
     }
@@ -80,9 +77,7 @@ _route.post('/2fa', _ifNotAuthed, async (req, res) => {
             await user.save();
         }
         const token = jwt.getToken(user.toJSON());
-        delete user.tfaSecret;
-        delete user.emailCode;
-        return res.json({ user: user.toJSON(), token });
+        return res.json({ token });
     } catch(error) {
         return res.status(500).json({ message: "Server error"});
     }
