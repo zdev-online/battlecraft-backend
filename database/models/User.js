@@ -13,7 +13,10 @@ const User = sequelize.define('User', {
             let hash = bcrypt.hashSync(value, salt);
             this.setDataValue('password', hash);
         }
-    }
+    },
+    emailCode: { type: DataTypes.INTEGER, allowNull: true },
+    tfaSecret: { type: DataTypes.STRING, allowNull: true },
+    tfaType: { type: DataTypes.STRING, defaultValue: 'none' }
 });
 
 User.prototype.isValidPassword = function(candidate){
