@@ -1,86 +1,84 @@
-const _route        = require('express').Router();
-const _ifNotAuthed  = require('../middlewares/ifNotAuthed');
-const _ifAuthed     = require('../middlewares/ifAuthed');
-const User          = require('../database/models/User');
-const jwt           = require('../utils/jwt');
-const tfa           = require('../utils/2fa');
-const mailer        = require('../utils/mailer');
+const _route            = require('express').Router();
+const _ifNotAuthed      = require('../middlewares/ifNotAuthed');
+const _ifAuthed         = require('../middlewares/ifAuthed');
+const User              = require('../database/models/User');
+const jwt               = require('../utils/jwt');
+const tfa               = require('../utils/2fa');
+const mailer            = require('../utils/mailer');
+const errorHelper       = require('../utils/errorHear');
 
 // Регистрация
-_route.post('/signup', _ifNotAuthed, async (req, res) => {
+_route.post("/signup", _ifNotAuthed, async (req, res) => {
     try {
-        if(!req.body){ return res.status(400).json({ message: 'Empty username or password' }); }
-        if(!req.body.username || !req.body.password){ return res.status(400).json({ message: 'Empty username or password' }); }
-        if(!req.body.username.length || !req.body.password.length){ return res.status(400).json({ message: 'Empty username or password' }); }
-        let user    = await User.create({ username: req.body.username, password: req.body.password });
-        let token   = jwt.getToken(user.toJSON());
+        if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
+        if(!req.body.login){ return res.status(400).json({message: 'Не указан логин', message_en: 'No username specified'})}
+        if(!req.body.password){ return res.status(400).json({message: 'Не указан пароль', message_en: 'A password is not specified'})}
+        if(!req.body.password_confirm){ return res.status(400).json({message: 'Подтвердите пароль', message_en: 'Confirm your password'})}
+        
+        let { email, login, password, password_confirm } = req.body;
+        if(password != password_confirm){ return res.status(400).json({message: 'Пароли не совпадают', message_en: 'Passwords don`t match'})}
+        
+        let accountFree = await User.findOne({ email, login });
+        if(!accountFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
+        
+        let user        = await User.create({ email, login, password });
+        let token       = jwt.getToken(user.toJSON());
         return res.json({ token });
-    } catch (error){
-        if(error.code){ return res.status(error.code).json({ message: error.message }) }
-        return res.status(500).json({ message: 'Server error' });
-    }
+    } catch (error) { return errorHelper.hear(res, error); }
 });
 
 // Авторизация
 _route.post('/signin', _ifNotAuthed, async (req, res) => {
     try {
-        if(!req.body){ return res.status(400).json({ message: 'Wrong username or password' }); }
-        if(!req.body.username || !req.body.password){ return res.status(400).json({ message: 'Wrong username or password' }); }
-        let user = await User.findOne({ where: { username: req.body.username } });
-        if(!user){ return res.status(404).json({ message: 'Wrong username or password'}); }
-        if(!user.validatePassword(req.body.password)){ return res.status(400).json({ message: 'Wrong username or password' }); }
-        let token = jwt.getToken(user.toJSON());
-        if(user.tfaType != 'none'){ 
-            if(user.tfaType == 'email'){
-                // Отправить код
-                let code = Math.round(Math.random() * 1000000);
-                user.emailCode = code;
-                await mailer.send(user.email, `Battle Craft`, `Код для авторизации: ${code}`, `
-                    <h1>Battle Craft - Авторизация</h1>
-                    <h3>Ваш код для авторизации: <b>${code}</b></h3>
-                `);
-                await user.save();
-            }
-            return res.json({ token: "", tfa: true }); 
-        }
-        return res.json({ token });
-    } catch(error){
-        return res.status(500).json({ message: 'Server error' });
-    }
+        if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
+        if(!req.body.password){ return res.status(400).json({message: 'Не указан пароль', message_en: 'A password is not specified'})}
+        
+        let user    = await User.findOne({ email });
+        let { email, password } = req.body;
+        if(!user){ return res.status(404).json({message: 'Пользователь не найден', message_en: "User not found"}) }
+        if(!user.isValidPassword(password)){ return res.status(400).json({message: 'Неверный пароль', message_en: "Invalid password"}); }
+        if(user.tfaType != 'none'){ return res.json({ tfa: true, tfaType: user.tfaType }) }
+        let token   = jwt.getToken(user.toJSON());
+        return res.json({ token, tfa: false });
+    } catch (error) { return errorHelper.hear(res, error); }
 });
 
-// Выход
-_route.post('/logout', _ifAuthed, (req, res) => { return res.json({ message: 'You are logged out' }) });
-
-// Получение информации о пользователе
-_route.get('/user', _ifAuthed, (req, res) => { 
+// Получение данных пользователя
+_route.get('/user', _ifAuthed, async (req, res) => {
     try {
-        return res.json({ user: req.user, token: req.token }); 
-    } catch (error) {
-        return res.status(500).json({ message: 'Server error' });
-    }
+        let user = jwt.checkToken(req.token);
+        delete user.password;
+        delete user.emailCode;
+        delete user.tfaSecret;
+        return res.json({ user });
+    } catch (error) { return errorHelper.hear(res, error); }
 });
 
-// Проверка 2FA кода
+// Двухфакторная аутентификация
 _route.post('/2fa', _ifNotAuthed, async (req, res) => {
     try {
-        if(!req.body.code){ return res.status(400).json({ message: '2fa-confirm-code required' }); }
-        if(!req.body.username){ return res.status(400).json({ message: "Username required"}); }
-        if(!req.body.password){ return res.status(400).json({ message: "Password required"}); }
-        let user = await User.findOne({ where: { username: req.body.username }});
+        if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
+        if(!req.body.password){ return res.status(400).json({message: 'Не указан пароль', message_en: 'A password is not specified'})}
+        if(!req.body.code){ return res.status(400).json({ message: 'Код неверный', message_en: "Invalid code"}) }
+        
+        let { email, password, code } = req.body;
+        let user = await User.findOne({ email });
+        if(!user){ return res.status(404).json({message: 'Пользователь не найден', message_en: "User not found"}) }
+        if(!user.isValidPassword(password)){ return res.status(400).json({message: 'Неверный пароль', message_en: "Invalid password"}) }
+        
         if(user.tfaType == 'google'){
-            if(!tfa.checkCode(req.body.code, user.tfaSecret)){ return res.status(403).json({ message: "2f-confirm-code doesn`t match"}) }
+            if(!tfa.checkCode(code, user.tfaSecret)){
+                return res.status(400).json({ message: 'Код неверный', message_en: "Invalid code"});
+            }
         }
         if(user.tfaType == 'email'){
-            if(user.emailCode != req.body.code){ return res.status(403).json({ message: "2f-confirm-code doesn`t match"}); }
-            user.emailCode = '';
-            await user.save();
+            if(code != user.emailCode){
+                return res.status(400).json({ message: 'Код неверный', message_en: "Invalid code"});
+            }
         }
-        const token = jwt.getToken(user.toJSON());
+        let token   = jwt.getToken(user.toJSON());
         return res.json({ token });
-    } catch(error) {
-        return res.status(500).json({ message: "Server error"});
-    }
+    } catch (error) { return errorHelper.hear(req, error); }
 });
 
 module.exports = _route;

@@ -1,20 +1,10 @@
-const jwt   = require('../utils/jwt');
+const jwt           = require('../utils/jwt');
+const errorHelper   = require('../utils/errorHear');
 
-module.exports = (req, res, next) => {
-    if(!req.token){ return res.status(401).json({ message: "Invalid token"}); }    
+module.exports = async (req, res, next) => {
     try {
-        let info = jwt.checkToken(req.token);
-        delete info.password;
-        delete info.emailCode;
-        delete info.tfaSecret;
-        req.user = info;
+        if(!req.token){ return res.status(400).json({ message: "Invalid token"}); }    
+        jwt.checkToken(req.token);
         return next();
-    } catch(error){
-        if(error.name) { 
-            if(error.name == 'TokenExpiredError')
-                return res.status(401).json({ message: "Token expired"});
-            return res.status(500).json({ message: "JWT Error"});
-        }
-        return res.status(401).json({ message: "Invalid token"});
-    }
+    } catch(error){ return errorHelper.hear(res, error); }
 }
