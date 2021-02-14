@@ -38,7 +38,7 @@ app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/user', ifAuthed, UserRoute);
 app.use('/shop', ShopRoute);
-app.use((req, res) => res.status(404).json({ message: 'Method not found'}));
+app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 
 // API - Server start
 server.listen(config.server.port, () => {

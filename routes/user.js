@@ -25,22 +25,23 @@ _route.post('/:id', async (req, res) => {
 // Сменить пароль
 _route.post('/changepassword', async (req, res) => {
     try {
-        if(!req.body){ return res.status(400).json({ message: 'Password empty' }); }
-        if(!req.body.new_password){ return res.status(400).json({ message: 'Password invalid' }); }
-        if(!req.body.new_password){ return res.status(400).json({ message: 'Password invalid' }); }
+        // body.new_password - Новый пароль
+        // body.new_password_accept - Подтверждение нового пароля
+        // body.old_password - Старый пароль
+        if(!req.body){ return res.status(400).json({ message: 'new_password, new_password_accept, old_password - required' }); }
+        if(!req.body.new_password){ return res.status(400).json({ message: 'New-Password invalid' }); }
+        if(!req.body.new_password_accept){ return res.status(400).json({ message: 'Accept-Password invalid' }); }
         if(!req.body.old_password){ return res.status(400).json({ message: 'Old Password empty' }); }
-        if(!req.body.old_password.length){ return res.status(400).json({ message: 'Old Password invalid' }); }
-        if(!req.body.old_password_accept){ return res.status(400).json({ message: 'Old Password invalid' }); }
-        if(!req.body.old_password_accept.length){ return res.status(400).json({ message: 'Old Password invalid' }); }
-        if(req.old_password != req.old_password_accept){ return res.status(400).json({ message: "Old password invalid" })}
+        if(req.body.new_password != req.body.new_password_accept){ return res.status(400).json({ message: "New passwords not equals" })}
         let user    = await User.findOne({ where: { username: req.user.username } });
         if(user.checkPassword(req.body.new_password)){ return res.status(400).json({ message: "Passwords equals" }); }
+        if(!user.checkPassword(req.body.old_password)){ return res.status(400).json({ message: 'Password invalid' }); }
         user.password = req.body.new_password;
         await user.save();
         let token   = jwt.getToken({ user: user.toJSON() });
         return res.json({ token, user: user.toJSON() });
     } catch (error) {
-        return res.status(500).json({ message: "Couldn't change password" });
+        return res.status(500).json({ message: "Server error" });
     }
 });
 

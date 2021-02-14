@@ -8,8 +8,8 @@ _route.get('/', (req, res) => {
 
 _route.get('/product/:id', async (req, res) => {
     try {
-        if(!req.params.id){ return res.status(404).json({ message: 'Product with this id not found' }); }
-        if(Number.isNaN(Number(req.params.id))){ return res.status(404).json({ message: 'Product with this id not found' }); }
+        if(!req.params.id){ return res.status(404).json({ message: 'Invalid product id' }); }
+        if(Number.isNaN(Number(req.params.id))){ return res.status(404).json({ message: 'Invalid product id' }); }
         let product = await Products.findOne({ where: {id: req.params.id} });
         if(!product){ return res.status(404).json({ message: "Product not found"}); }
         return res.json(product.toJSON());

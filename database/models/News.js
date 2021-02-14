@@ -24,13 +24,20 @@ const News = sequelize.define('News', {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    fullText: DataTypes.TEXT,
-    seoTitle: DataTypes.STRING,
-    seoDescription: DataTypes.TEXT,
-    seoKeywords: DataTypes.TEXT,
-    public: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+    text: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    seoTitle: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    seoDescription: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    seoKeywords: {
+        type: DataTypes.TEXT,
         allowNull: false
     }
 }, {
