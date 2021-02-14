@@ -23,8 +23,4 @@ const Server = sequelize.define('Server', {
     tableName: 'servers'
 });
 
-Server.sync({ force: true }).catch((error) => {
-    console.error(`Не удалось синхронизировать модель и таблицу 'Server'\n${error}`);
-})
-
 module.exports = Server;

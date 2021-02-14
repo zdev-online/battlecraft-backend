@@ -58,8 +58,5 @@ User.prototype.validatePassword = function(candidate){
     return bcrypt.compareSync(candidate, this.password);
 }
 
-User.sync({ force: true }).catch((error) => {
-    console.error(`Не удалось синхронизировать модель и таблицу 'Users'\n${error}`);
-})
 
 module.exports = User;

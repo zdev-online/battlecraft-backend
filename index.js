@@ -9,6 +9,13 @@ const config    = require('./config.json');
 const app       = express();
 const server    = http.createServer(app);
 
+// Models
+const User      = require('./database/models/User');
+const News      = require('./database/models/News');
+const Products  = require('./database/models/Products');
+const Server    = require('./database/models/Server');
+const Temp2fa   = require('./database/models/Temp2fa');
+
 // Routes
 const AuthRoute     = require('./routes/authorization');
 const NewsRoute     = require('./routes/news');
@@ -17,7 +24,7 @@ const ShopRoute     = require('./routes/shop');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
-// const ifNotAuthed   = require('./middlewares/ifNotAuthed');
+const ifNotAuthed   = require('./middlewares/ifNotAuthed');
 const ifAuthed      = require('./middlewares/ifAuthed');
 const logger        = require('./middlewares/logger');
 
@@ -41,6 +48,15 @@ app.use('/shop', ShopRoute);
 app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 
 // API - Server start
-server.listen(config.server.port, () => {
+server.listen(config.server.port, async () => {
     console.log(`API - Server > listen > ::${config.server.port}`);
+    try {
+        await User.sync();
+        await News.sync();
+        await Products.sync();
+        await Server.sync();
+        await Temp2fa.sync();
+    } catch (error) {
+        console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
+    }
 });
