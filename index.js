@@ -10,7 +10,9 @@ const app       = express();
 const server    = http.createServer(app);
 
 // Models
-const User      = require('./database/models/User');
+const User          = require('./database/models/User');
+const Temp2fa       = require('./database/models/Temp2fa');
+
 
 // Routes
 const AuthRoute     = require('./routes/authorization');
@@ -45,6 +47,8 @@ server.listen(config.server.port, async () => {
     try {
         await User.sync({ alter: true, logging: false });
         console.log(`Users sync successful`);
+        await Temp2fa.sync({ alter: true });
+        console.log(`Temp2fa sync successful`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }

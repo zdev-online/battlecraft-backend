@@ -2,7 +2,7 @@ const { sequelize, DataTypes }  = require('../database');
 const bcrypt                    = require('bcrypt');
 
 const User = sequelize.define('User', {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    id: { type: DataTypes.BIGINT, autoIncrement: true, primaryKey: true },
     email: { type: DataTypes.STRING, allowNull: false },
     login: { type: DataTypes.STRING, allowNull: false },
     password: { 
