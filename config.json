@@ -5,7 +5,8 @@
         "username": "root",
         "password": "",
         "database": "battlecraft",
-        "dialect": "mysql"
+        "dialect": "mysql",
+        "logging": false
     },
     "server": {
         "port": 4000

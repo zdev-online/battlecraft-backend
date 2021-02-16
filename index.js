@@ -43,7 +43,8 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 server.listen(config.server.port, async () => {
     console.log(`API - Server > listen > ::${config.server.port}`);
     try {
-        await User.sync({ alter: true });
+        await User.sync({ alter: true, logging: false });
+        console.log(`Users sync successful`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }

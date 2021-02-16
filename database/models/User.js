@@ -9,7 +9,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false,
         set: function (value){
-            let salt = bcrypt.genSaltSync(50);
+            let salt = bcrypt.genSaltSync(10);
             let hash = bcrypt.hashSync(value, salt);
             this.setDataValue('password', hash);
         }

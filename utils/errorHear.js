@@ -1,5 +1,5 @@
 module.exports.hear = (res, error) => {
-    if(!error.name){ return false; }
+    console.log(`Ошибка: ${error.message}\n${error.stack}`);
     switch(error.name){
         case "TokenExpiredError": {
             res.status(400).json({ message: "Срок действия токена истек!", message_en: "Token expired" });

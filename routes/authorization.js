@@ -18,8 +18,8 @@ _route.post("/signup", _ifNotAuthed, async (req, res) => {
         let { email, login, password, password_confirm } = req.body;
         if(password != password_confirm){ return res.status(400).json({message: 'Пароли не совпадают', message_en: 'Passwords don`t match'})}
         
-        let accountFree = await User.findOne({ email, login });
-        if(!accountFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
+        let accountNotFree = await User.findOne({where: { email, login }});
+        if(accountNotFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
         
         let user        = await User.create({ email, login, password });
         let token       = jwt.getToken(user.toJSON());
@@ -33,8 +33,8 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
         if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
         if(!req.body.password){ return res.status(400).json({message: 'Не указан пароль', message_en: 'A password is not specified'})}
         
-        let user    = await User.findOne({ email });
         let { email, password } = req.body;
+        let user    = await User.findOne({where: { email }});
         if(!user){ return res.status(404).json({message: 'Пользователь не найден', message_en: "User not found"}) }
         if(!user.isValidPassword(password)){ return res.status(400).json({message: 'Неверный пароль', message_en: "Invalid password"}); }
         if(user.tfaType != 'none'){ return res.json({ tfa: true, tfaType: user.tfaType }) }
@@ -62,8 +62,9 @@ _route.post('/2fa', _ifNotAuthed, async (req, res) => {
         if(!req.body.code){ return res.status(400).json({ message: 'Код неверный', message_en: "Invalid code"}) }
         
         let { email, password, code } = req.body;
-        let user = await User.findOne({ email });
+        let user = await User.findOne({where: { email }});
         if(!user){ return res.status(404).json({message: 'Пользователь не найден', message_en: "User not found"}) }
+        if(user.tfaType == 'none'){ return res.status(400).json({ message: "2FA выключена", message_en: "2FA disabled"});}
         if(!user.isValidPassword(password)){ return res.status(400).json({message: 'Неверный пароль', message_en: "Invalid password"}) }
         
         if(user.tfaType == 'google'){
