@@ -71,4 +71,28 @@ _route.post('/2fa/confirm', async (req, res) => {
     } catch (error) { return errorHelper.hear(res, error) }
 });
 
+_route.post('/change/password', async (req, res) => {
+    try {
+        if(!req.body.password){ return res.status(400).json({ message: 'Не указан текущий пароль', message_en: 'The current password is not specified'}); }
+        if(!req.body.new_password){ return res.status(400).json({ message: 'Не указан новый пароль', message_en: 'The new-password is not specified'}); }
+        if(!req.body.new_password_accept){ return res.status(400).json({ message: 'Не указан подтверждающий пароль', message_en: 'Confirmation password not specified'}); }
+        
+        let { password, new_password, new_password_accept } = req.body;
+        if(new_password != new_password_accept){ return res.status(400).json({ message: 'Пароли не совпадают', message_en: "Passwords don't match"})}
+        if(new_password.length < 8 || new_password.length > 30){  return res.status(400).json({ message: 'Пароль не может быть больше 30 и меньше 8 символов', message_en: "The password can not be more than 30 and less than 8 characters"}) }
+        let user = await User.findOne({ where: { id: req.user.id } });
+        if(!user.isValidPassword(password)){ return  res.status(400).json({ message: 'Пароль неверный', message_en: 'Invalid password'})}
+        user.password = new_password;
+        await user.save();
+        let token = jwt.getToken(user.toJSON());
+        return res.json({ token });
+    } catch (error) { return errorHelper.hear(res, error); } 
+});
+
+_route.post('/change/email', async (req, res) => {
+   try {
+       
+   } catch (error) { return errorHelper.hear(res, error)} 
+});
+
 module.exports = _route;
