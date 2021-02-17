@@ -5,6 +5,7 @@ const jwt           = require('../utils/jwt');
 const User          = require('../database/models/User');
 const Temp2fa       = require('../database/models/Temp2fa');
 
+// Запрос на добавление 2-х факторной аунтентификации
 _route.get('/2fa', async (req, res) => {
     try {
         if(!req.query.type){ return res.status(400).json({ message: "Не указан тип 2FA", message_en: "2FA type not specified"}); }
@@ -49,6 +50,7 @@ _route.get('/2fa', async (req, res) => {
     } catch (error) { return errorHelper.hear(res, error) }
 });
 
+// Подтверждения запроса на 2-х факторную аунтентификацию
 _route.post('/2fa/confirm', async (req, res) => {
     try {
         if(!req.body.code){ return res.status(400).json({ message: 'Неверный код подтверждения', message_en: "Invalid confirm code"}); }
@@ -71,6 +73,7 @@ _route.post('/2fa/confirm', async (req, res) => {
     } catch (error) { return errorHelper.hear(res, error) }
 });
 
+// Смена пароля
 _route.post('/change/password', async (req, res) => {
     try {
         if(!req.body.password){ return res.status(400).json({ message: 'Не указан текущий пароль', message_en: 'The current password is not specified'}); }
@@ -89,6 +92,7 @@ _route.post('/change/password', async (req, res) => {
     } catch (error) { return errorHelper.hear(res, error); } 
 });
 
+// Смена почты ( Не работает (Пока что) )
 _route.post('/change/email', async (req, res) => {
    try {
        
