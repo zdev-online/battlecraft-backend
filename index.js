@@ -31,7 +31,7 @@ moment.locale('ru');
 app.use(helmet());
 app.use(cors());
 app.use(bodyParse.urlencoded({extended: true}));
-app.use(bodyParse.json());
+app.use(bodyParse.json({ strict: true }));
 app.use(parseToken);
 app.use(logger);
 

@@ -16,11 +16,15 @@ _route.post("/signup", _ifNotAuthed, async (req, res) => {
         if(!req.body.password_confirm){ return res.status(400).json({message: 'Подтвердите пароль', message_en: 'Confirm your password'})}
         
         let { email, login, password, password_confirm } = req.body;
+        password            = String(password);
+        password_confirm    = String(password_confirm);
+
+        if(password.length < 8 || password.length > 30){  return res.status(400).json({ message: 'Пароль не может быть больше 30 и меньше 8 символов', message_en: "The password can not be more than 30 and less than 8 characters"}) }
         if(password != password_confirm){ return res.status(400).json({message: 'Пароли не совпадают', message_en: 'Passwords don`t match'})}
         
         let accountNotFree = await User.findOne({where: { email, login }});
         if(accountNotFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
-        
+
         let user        = await User.create({ email, login, password });
         let token       = jwt.getToken(user.toJSON());
         return res.json({ token });
@@ -36,7 +40,7 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
         let { email, password } = req.body;
         let user    = await User.findOne({where: { email }});
         if(!user){ return res.status(404).json({message: 'Пользователь не найден', message_en: "User not found"}) }
-        if(!user.isValidPassword(password)){ return res.status(400).json({message: 'Неверный пароль', message_en: "Invalid password"}); }
+        if(!user.isValidPassword(String(password))){ return res.status(400).json({message: 'Неверный пароль', message_en: "Invalid password"}); }
         if(user.tfaType != 'none'){ return res.json({ tfa: true, tfaType: user.tfaType }) }
         let token   = jwt.getToken(user.toJSON());
         return res.json({ token, tfa: false });
