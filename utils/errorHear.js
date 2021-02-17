@@ -1,20 +1,15 @@
 module.exports.hear = (res, error) => {
-    console.log(`Ошибка: ${error.message}\n${error.stack}`);
     switch(error.name){
         case "TokenExpiredError": {
-            res.status(400).json({ message: "Срок действия токена истек!", message_en: "Token expired" });
-            return true;
+            return res.status(400).json({ message: "Срок действия токена истек!", message_en: "Token expired" });
         }
         case "JsonWebTokenError": {
-            res.status(500).json({ message: "Ошибка сервера", message_en: "Server error" });
-            return true;
+            return res.status(400).json({ message: "Неверный токен", message_en: "Invalid token" });
         }
         case "NotBeforeError": {
-            res.status(400).json({ message: "Токен не активен", message_en: "Token not active" });
-            return true;
-        }
-        default: {
-            res.status(500).json({ message: "Ошибка сервера", message_en: "Server error" });
+            return res.status(400).json({ message: "Токен не активен", message_en: "Token not active" });
         }
     }
+    console.log(`Ошибка: ${error.message}\n${error.stack}`);
+    return res.status(500).json({ message: "Ошибка сервера", message_en: "Server error" });
 }
