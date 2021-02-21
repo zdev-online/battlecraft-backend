@@ -86,4 +86,19 @@ _route.post('/2fa', _ifNotAuthed, async (req, res) => {
     } catch (error) { return errorHelper.hear(req, error); }
 });
 
+// Авторизация для лаунчера ( p.s не важен для фронта )
+_route.post('/launcher', async (req, res) => {
+    try {
+        if(!req.body.username){ return res.status(400).json({ error: 'Неверный логин' }); }
+        if(!req.body.password){ return res.status(400).json({ error: 'Неверный пароль' }); }
+        let {  username:email, password } = req.body;
+        let user = await User.findOne({ where: { email } });
+        if(!user){ return res.status(400).json({ error: "Аккаунт не найден" }); }
+        if(!user.isValidPassword(password)){ return res.status(400).json({ error: 'Неверный пароль' }); }
+        return res.json({ username: user.login, permissions: 0 });
+    } catch (error) {
+        return res.status(500).json({ error: "Ошибка сервера..." });
+    }
+});
+
 module.exports = _route;

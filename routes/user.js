@@ -5,7 +5,7 @@ const jwt           = require('../utils/jwt');
 const User          = require('../database/models/User');
 const Temp2fa       = require('../database/models/Temp2fa');
 
-// Запрос на добавление 2-х факторной аунтентификации
+// Запрос на добавление \ сброс 2-х факторной аунтентификации
 _route.get('/2fa', async (req, res) => {
     try {
         if(!req.query.type){ return res.status(400).json({ message: "Не указан тип 2FA", message_en: "2FA type not specified"}); }
