@@ -12,11 +12,13 @@ const server    = http.createServer(app);
 // Models
 const User          = require('./database/models/User');
 const Temp2fa       = require('./database/models/Temp2fa');
-
+const News          = require('./database/models/News')
+const Donate        = require('./database/models/Donate')
 
 // Routes
 const AuthRoute     = require('./routes/authorization');
 const UserRoute     = require('./routes/user');
+const NewsRoute     = require('./routes/news');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
@@ -38,6 +40,7 @@ app.use(logger);
 // Use Routes
 app.all('/', (req, res) => res.json({ date: moment().format("HH:mm:ss, DD.MM.YYYY a"), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
 app.use('/auth', AuthRoute);
+app.use('/news', NewsRoute);
 app.use('/user', ifAuthed, UserRoute);
 app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 
@@ -49,6 +52,10 @@ server.listen(config.server.port, async () => {
         console.log(`Users sync successful`);
         await Temp2fa.sync({ alter: true });
         console.log(`Temp2fa sync successful`);
+        await Donate.sync({ alter: true });
+        console.log(`Donate sync successful`);
+        await News.sync({ alter: true });
+        console.log(`News sync successful`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }
