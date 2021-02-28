@@ -19,6 +19,7 @@ const Donate        = require('./database/models/Donate')
 const AuthRoute     = require('./routes/authorization');
 const UserRoute     = require('./routes/user');
 const NewsRoute     = require('./routes/news');
+const ManageRoute   = require('./routes/manage');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
