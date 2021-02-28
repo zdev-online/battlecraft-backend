@@ -4,7 +4,7 @@ const gamedig = require('gamedig');
 module.exports.getServers = async () => {
     let serversInfo = [];
     for(let i = 0; i < servers.length; i++){
-        let info = await gamedig.query({ type: "minecraft", host: servers[i] });
+        let info = await gamedig.query({ type: "minecraft", host: servers[i] }).catch((error) => {});
         serversInfo.push({
             max_players: info.maxplayers,
             host: info.connect,

@@ -106,18 +106,17 @@ _route.post('/change/skin', multer({
     dest: path.resolve('..', 'skins'),
     storage: multer.diskStorage({
         filename: (req, file, callback) => {
-            if(file.mimetype == 'image/jpeg'){
-                return callback(null, `${req.user.email}.jpg`);
-            }
             if(file.mimetype == 'image/png'){
                 return callback(null, `${req.user.email}.png`);
             }
+            return callback(new Error(`Только .png скины!`), null);
         }
     }),
     limits: { fileSize: 1024 * 1024 }
 }).single('skin'), async (req, res) => {
     try {
         if(!req.file){ return res.status(400).json({ message: "Файл скина не указан", message_en: "The skin file is not specified"}); }
+        
         return res.json({ message: "Скин установлен", message_en: "Skin installed"})
     } catch (error) { return errorHelper.hear(res, error)} 
  });

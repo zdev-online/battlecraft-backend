@@ -8,10 +8,8 @@ io.on('connection', (socket) => {
     socket.on('get_servers_info', async (callback) => {
         try {
             let serverInfo = await servers.getServers();
-            // Send info about servers 
-        } catch (error) {
-
-        }
+            callback(false, serverInfo);
+        } catch (error) { return callback(error.message, null); }
     });
 
     socket.on('disconnect', (reason) => {
