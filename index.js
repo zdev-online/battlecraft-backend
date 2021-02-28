@@ -20,6 +20,8 @@ const AuthRoute     = require('./routes/authorization');
 const UserRoute     = require('./routes/user');
 const NewsRoute     = require('./routes/news');
 const ManageRoute   = require('./routes/manage');
+const DonateRoute   = require('./routes/donate');
+const StreamsRoute  = require('./routes/streams');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
@@ -42,7 +44,10 @@ app.use(logger);
 app.all('/', (req, res) => res.json({ date: moment().format("HH:mm:ss, DD.MM.YYYY a"), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
+app.use('/streams', StreamsRoute);
 app.use('/user', ifAuthed, UserRoute);
+app.use('/donate', ifAuthed, DonateRoute);
+app.use('/manage', ifAuthed, ManageRoute);
 app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 
 // API - Server start
