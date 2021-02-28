@@ -14,9 +14,10 @@ const User = sequelize.define('User', {
             this.setDataValue('password', hash);
         }
     },
-    emailCode: { type: DataTypes.INTEGER, allowNull: true },
-    tfaSecret: { type: DataTypes.STRING, allowNull: true },
-    tfaType: { type: DataTypes.STRING, defaultValue: 'none' }
+    emailCode:  { type: DataTypes.INTEGER, allowNull: true },
+    tfaSecret:  { type: DataTypes.STRING, allowNull: true },
+    tfaType:    { type: DataTypes.STRING, defaultValue: 'none' },
+    skinPath:   { type: DataTypes.STRING, allowNull: true, defaultValue: "/skins/steve.jpg" }
 });
 
 User.prototype.isValidPassword = function(candidate){

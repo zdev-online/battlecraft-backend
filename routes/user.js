@@ -1,4 +1,6 @@
 const _route        = require('express').Router();
+const path          = require('path');
+const multer        = require('multer');
 const errorHelper   = require('../utils/errorHear');
 const tfa           = require('../utils/2fa');
 const jwt           = require('../utils/jwt');
@@ -98,5 +100,26 @@ _route.post('/change/email', async (req, res) => {
        
    } catch (error) { return errorHelper.hear(res, error)} 
 });
+
+// Смена скина! Content-Type: multipart/form-data 
+_route.post('/change/skin', multer({ 
+    dest: path.resolve('..', 'skins'),
+    storage: multer.diskStorage({
+        filename: (req, file, callback) => {
+            if(file.mimetype == 'image/jpeg'){
+                return callback(null, `${req.user.email}.jpg`);
+            }
+            if(file.mimetype == 'image/png'){
+                return callback(null, `${req.user.email}.png`);
+            }
+        }
+    }),
+    limits: { fileSize: 1024 * 1024 }
+}).single('skin'), async (req, res) => {
+    try {
+        if(!req.file){ return res.status(400).json({ message: "Файл скина не указан", message_en: "The skin file is not specified"}); }
+        return res.json({ message: "Скин установлен", message_en: "Skin installed"})
+    } catch (error) { return errorHelper.hear(res, error)} 
+ });
 
 module.exports = _route;
