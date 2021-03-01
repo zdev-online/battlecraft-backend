@@ -24,7 +24,7 @@ for(let i in config){
             contexts:   { type: DataTypes.STRING, defaultValue: "{}"}
         }, { tableName: config[i].table_name });
     } else {
-        throw `Unknown type of model`;
+        throw `Unknown type of model | Неизветный тип модели - (доступны pex, luckyperms)`;
     }
 }
 
