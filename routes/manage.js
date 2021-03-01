@@ -22,6 +22,13 @@ _route.post('/news', multer({
         return res.json(news.toJSON());
     } catch (error) { return errorHear.hear(res, error); }
 });
+_route.post('/news/:id/edit', async (req, res) => {
+    try {
+        if(!req.params.id){ return res.status(400).json({ message: "Неизвеcтный ID новости", message_en: "Unknown news ID" }); }
+        let news = await News.findOne({ id: req.params.id });
+        if(!news){ return res.status(400).json({ message: "Новость с данным ID не найдена", message_en: "News with that ID not found" }); }
+    } catch (error) { return errorHear.hear(res, erorr); }
+});
 _route.delete('/news/:id', async (req, res) => {
     try {
         if(!req.params.id){ return res.status(400).json({ message: "Неверный ID новости", message_en: "Invalid news id" }); }
