@@ -27,6 +27,7 @@ const StreamsRoute  = require('./routes/streams');
 const parseToken    = require('./middlewares/parseToken');
 const ifNotAuthed   = require('./middlewares/ifNotAuthed');
 const ifAuthed      = require('./middlewares/ifAuthed');
+const isManager     = require('./middlewares/isManager');
 const logger        = require('./middlewares/logger');
 
 // Settings
@@ -47,7 +48,7 @@ app.use('/news', NewsRoute);
 app.use('/streams', StreamsRoute);
 app.use('/user', ifAuthed, UserRoute);
 app.use('/donate', ifAuthed, DonateRoute);
-app.use('/manage', ifAuthed, ManageRoute);
+app.use('/manage', ifAuthed, isManager(), ManageRoute);
 app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 
 // API - Server start
