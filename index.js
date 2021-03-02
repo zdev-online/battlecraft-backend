@@ -12,8 +12,9 @@ const server    = http.createServer(app);
 // Models
 const User          = require('./database/models/User');
 const Temp2fa       = require('./database/models/Temp2fa');
-const News          = require('./database/models/News')
-const Donate        = require('./database/models/Donate')
+const News          = require('./database/models/News');
+const Donate        = require('./database/models/Donate');
+const Streams       = require('./database/models/Streams');
 
 // Routes
 const AuthRoute     = require('./routes/authorization');
@@ -63,6 +64,8 @@ server.listen(config.server.port, async () => {
         console.log(`Donate sync successful`);
         await News.sync({ alter: true });
         console.log(`News sync successful`);
+        await Streams.sync();
+        console.log(`Streams sync successful`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }
