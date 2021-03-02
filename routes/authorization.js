@@ -13,7 +13,7 @@ _route.post("/signup", _ifNotAuthed, async (req, res) => {
         if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
         if(!req.body.login){ return res.status(400).json({message: 'Не указан логин', message_en: 'No username specified'})}
         
-        let accountNotFree = await User.findOne({where: { email, login }});
+        let accountNotFree = await User.findOne({where: { email: req.body.email , login: req.body.login  }});
         if(accountNotFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
         
         if(!req.body.password){ return res.status(400).json({message: 'Не указан пароль', message_en: 'A password is not specified'})}
@@ -51,11 +51,12 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
 // Получение данных пользователя
 _route.get('/user', _ifAuthed, async (req, res) => {
     try {
-        let user = jwt.checkToken(req.token);
+        let user    = (await User.findOne({ where: { email: req.user.email }})).toJSON();
+        let token   = jwt.getToken(user);
         delete user.password;
         delete user.emailCode;
         delete user.tfaSecret;
-        return res.json({ user });
+        return res.json({ user, token });
     } catch (error) { return errorHelper.hear(res, error); }
 });
 

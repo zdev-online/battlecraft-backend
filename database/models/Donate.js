@@ -2,12 +2,11 @@ const { sequelize, DataTypes:Types }  = require('../database');
 
 const Donate = sequelize.define('Donate', {
    id: {
-       type: Types.NUMBER,
-       allowNull: false,
+       type: Types.BIGINT,
        primaryKey: true
    },
    expires: {
-       type: Types.NUMBER,
+       type: Types.BIGINT,
        allowNull: false
    },
    server: {
