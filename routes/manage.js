@@ -24,9 +24,13 @@ _route.post('/news', multer({
 });
 _route.post('/news/:id/edit', async (req, res) => {
     try {
-        if(!req.params.id){ return res.status(400).json({ message: "Неизвеcтный ID новости", message_en: "Unknown news ID" }); }
+        if(!req.params.id || !Number.isInteger(Number(req.params.id))){ return res.status(400).json({ message: "Неизвеcтный ID новости", message_en: "Unknown news ID" }); }
         let news = await News.findOne({ id: req.params.id });
         if(!news){ return res.status(400).json({ message: "Новость с данным ID не найдена", message_en: "News with that ID not found" }); }
+        news.title      = (req.body.title.length) ? req.body.title : news.title;
+        news.text       = (req.body.text.length) ? req.body.text : news.text;
+        await news.save();
+        return res.json(news.toJSON());
     } catch (error) { return errorHear.hear(res, erorr); }
 });
 _route.delete('/news/:id', async (req, res) => {
@@ -41,7 +45,11 @@ _route.delete('/news/:id', async (req, res) => {
 
 _route.get('/streams', async (req, res) => {});
 _route.post('/streams', async (req, res) => {});
-_route.delete('/streams/:id', async (req, res) => {});
+_route.post('/streams/:id/delete', async (req, res) => {
+    try {
+        if(!req.params.id || !Number.isInteger(Number(req.params.id))){}
+    } catch (error) { return errorHear.hear(res, error); }
+});
 
 _route.post('/edit/role', async (req, res) => {
     try {
