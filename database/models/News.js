@@ -1,10 +1,10 @@
-const { sequelize, DataTypes } = require('../database');
+const { sequelize, DataTypes:Types }  = require('../database');
 
 const News = sequelize.define('News', {
-    id: { type: DataTypes.NUMBER, autoIncrement: true, primaryKey: true },
-    title: { type: DataTypes.STRING, allowNull: false },
-    text: { type: DataTypes.TEXT, allowNull: false },
-    img_url: { type: DataTypes.TEXT, allowNull: false },
+    id: { type: Types.NUMBER, autoIncrement: true, primaryKey: true },
+    title: { type: Types.STRING, allowNull: false },
+    text: { type: Types.TEXT, allowNull: false },
+    img_url: { type: Types.TEXT, allowNull: false },
 }, { tableName: 'news' });
 
 module.exports = News;

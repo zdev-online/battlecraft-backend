@@ -1,17 +1,17 @@
-const { sequelize, DataTypes }  = require('../database');
+const { sequelize, DataTypes:Types }  = require('../database');
 
 const Donate = sequelize.define('Donate', {
    id: {
-       type: DataTypes.NUMBER,
+       type: Types.NUMBER,
        allowNull: false,
        primaryKey: true
    },
    expires: {
-       type: DataTypes.NUMBER,
+       type: Types.NUMBER,
        allowNull: false
    },
    server: {
-       type: DataTypes.STRING,
+       type: Types.STRING,
        allowNull: false
    }
 }, {

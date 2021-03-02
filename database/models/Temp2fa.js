@@ -1,20 +1,20 @@
-const { sequelize, DataTypes }  = require('../database');
+const { sequelize, DataTypes:Types }  = require('../database');
 
 const Temp2fa = sequelize.define('Temp2fa', {
     userId: {
-        type: DataTypes.BIGINT,
+        type: Types.BIGINT,
         allowNull: false
     },
     tfaType: {
-        type: DataTypes.STRING,
+        type: Types.STRING,
         allowNull: false
     },
     tfaCode: {
-        type: DataTypes.STRING,
+        type: Types.STRING,
         allowNull: false
     },
     expires: {
-        type: DataTypes.BIGINT,
+        type: Types.BIGINT,
         allowNull: false
     }
 });
