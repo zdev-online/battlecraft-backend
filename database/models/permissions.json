@@ -7,6 +7,6 @@
     {
         "table_name": "serverTwo_user_permissions",
         "model_name": "server_two",
-        "type": "luckyperm"
+        "type": "luckyperms"
     }
 ]
