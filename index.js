@@ -46,9 +46,9 @@ app.use(logger);
 app.all('/', (req, res) => res.json({ date: moment().format("HH:mm:ss, DD.MM.YYYY a"), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
+app.use('/donate', DonateRoute);
 app.use('/streams', StreamsRoute);
 app.use('/user', ifAuthed, UserRoute);
-app.use('/donate', ifAuthed, DonateRoute);
 app.use('/manage', ifAuthed, isManager(), ManageRoute);
 app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
 

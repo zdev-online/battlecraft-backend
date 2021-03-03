@@ -18,7 +18,8 @@ const User = sequelize.define('User', {
     tfaSecret:  { type: Types.STRING, allowNull: true },
     tfaType:    { type: Types.STRING, defaultValue: 'none' },
     skinPath:   { type: Types.STRING, allowNull: true, defaultValue: "/skins/steve.png" },
-    role:       { type: Types.STRING, allowNull: false, defaultValue: 'user' }
+    role:       { type: Types.STRING, allowNull: false, defaultValue: 'user' },
+    crystals:   { type: Types.BIGINT, allowNull: false, defaultValue: 0 }
 });
 
 User.prototype.isValidPassword = function(candidate){

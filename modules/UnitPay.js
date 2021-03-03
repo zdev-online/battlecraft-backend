@@ -1,0 +1,64 @@
+const sha256    = require('sha256'); 
+const axios     = require('axios').default;
+const Unitpay   = require('../database/models/Unitpay');
+const User      = require('../database/models/User');
+const config    = require('../config.json');
+
+module.exports  = class UnitPay {
+    constructor(){
+        this.ips            = ["31.186.100.49", "178.132.203.105", "52.29.152.23", "52.19.56.234"];
+        this.createError    = (message) => ({ error: { message } });
+        this.createResponse = (message) => ({ result: { message } });
+        this.url            = "https://unitpay.ru/api";
+    }
+
+    getSign(email, currency, desc, sum, secretKey){
+        let sign = sha256(`${email}{up}${currency}{up}${desc}{up}${sum}{up}${secretKey}`);
+        return sign;
+    }
+
+    async getPayData(email, desc, sum, payType, ip){
+        let sign        = this.getSign(email, 'RUB', desc, sum, config.unitpay.secretKey);
+        let { data }    = await axios.get(this.url, { 
+            params: {
+                paymentType: payType,
+                account: email,
+                desc, sum, ip, 
+                projectId: config.unitpay.projectId,
+                signature: sign
+            }
+        });
+        await Unitpay.create({ sum, email, sign, payId: data.paymentId });
+        return data;
+    }
+
+    async handler(req, res, next){
+        try {
+            if(!this.ips.includes(req.ip)){ return res.json(this.createError("Ты не из UnitPay ^_^")); }
+            let { method, orderSum, orderCurrency, account:email, signature:sign, projectId, unitpayId } = req.query;
+            if(projectId != config.unitpay.projectId){ return res.json(this.createError("Валидация заказа провалена!")); }
+            if(orderCurrency != 'RUB'){ return res.json(this.createError("Валидация заказа провалена!")); }
+            let payment = await Unitpay.findOne({ email, sign });
+            if(!payment){ return res.json(this.createError('Валидация заказа провалена!')); } 
+            if(orderSum != payment.sum){ return res.json(this.createError('Валидация заказа провалена!')); }
+            if(unitpayId != payment.payId){ return res.json(this.createError('Валидация заказа провалена!')); }
+            switch(String(method).toUpperCase()){
+                case 'CHECK': { return res.json(this.createResponse('Заказ обработан!')) }
+                case 'PAY': { 
+                    let user = await User.findOne({ email });
+                    if(!user){ return res.json(this.createError("Валидация заказа провалена!"))}
+                    user.crystals += orderSum;
+                    await user.save();
+                    return res.json(this.createResponse("Кристаллы выданы!"));
+                }
+                case 'ERROR': {
+                    console.error(`Unitpay ERROR: ${req.query.errorMessage}`);
+                    return res.json(this.createError("Ошибка принята!"))
+                }
+                default: { return res.json(this.createError("Валидация заказа провалена!")); }
+            }
+        } catch (error) { 
+            return res.json({ error: { message: "Ошибка сервера!" } })
+        }
+    }
+}

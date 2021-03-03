@@ -10,6 +10,6 @@ module.exports.hear = (res, error) => {
             return res.status(400).json({ message: "Токен не активен", message_en: "Token not active" });
         }
     }
-    console.log(`Ошибка: ${error.message}\n${error.stack}`);
+    console.log(`Ошибка: ${error.message}\n${error.stack || ''}`);
     return res.status(500).json({ message: "Ошибка сервера", message_en: "Server error" });
 }

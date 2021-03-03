@@ -25,5 +25,9 @@
             "pass": ""
         },
         "from": ""
-    }
+    },
+    "unitpay": {
+        "secretKey": "",
+        "projectId": 0 
+    } 
 }
