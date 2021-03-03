@@ -1,0 +1,41 @@
+const md5       = require('md5');
+const config    = require('../config.json');
+const EnotIO    = require('../database/models/Enotio');
+const User      = require('../database/models/User');
+
+module.exports  = class EnotIo {
+    getSign(order_amount, payment_id){
+        let merchant_id     = config.enotio.merchantId;
+        let secret_word     = config.enotio.secretWord;
+        let sign = `${merchant_id}:${order_amount}:${secret_word}:${payment_id}`;
+        return sign;
+    }
+
+    async getURL(email, sum){
+        let payment = await EnotIO.create({ email, sum });
+        let params  = new URLSearchParams();
+        params.append('m', config.enotio.merchantId);
+        params.append('oa', sum);
+        params.append('o', payment.id);
+        params.append('s', this.getSign(sum, payment.id));
+        let pay_url = `https://enot.io/pay?${params.toString()}`;
+        return pay_url;
+    }
+
+    async handler(req, res, next){
+        try {
+            let { merchant, amount:sum, merchant_id:id, sign_2 } = req.body;
+            if(merchant != config.merchantId){ return res.status(400).write('Проверка заказа не пройдена'); }
+            let sign = `${merchant}:${amount}:${config.enotio.secretWord}:${merchant_id}`;
+            if(sign != sign_2){ return res.status(400).wtire('Проверка заказа не пройдена'); }
+            let payment = await EnotIO.findOne({ where: { sum, id }});
+            if(!payment){ return res.status(404).write('Заказ не найден'); }
+            let user = await User.findOne({ where: { email: payment.email }});
+            user.crystals += amount;
+            await user.save();
+            return res.writel('Good'); 
+        } catch (error) {
+            return res.status(500).write('Server error');
+        }
+    }
+}

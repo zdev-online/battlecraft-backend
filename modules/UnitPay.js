@@ -38,14 +38,14 @@ module.exports  = class UnitPay {
             let { method, orderSum, orderCurrency, account:email, signature:sign, projectId, unitpayId } = req.query;
             if(projectId != config.unitpay.projectId){ return res.json(this.createError("Валидация заказа провалена!")); }
             if(orderCurrency != 'RUB'){ return res.json(this.createError("Валидация заказа провалена!")); }
-            let payment = await Unitpay.findOne({ email, sign });
+            let payment = await Unitpay.findOne({ where: { email, sign }});
             if(!payment){ return res.json(this.createError('Валидация заказа провалена!')); } 
             if(orderSum != payment.sum){ return res.json(this.createError('Валидация заказа провалена!')); }
             if(unitpayId != payment.payId){ return res.json(this.createError('Валидация заказа провалена!')); }
             switch(String(method).toUpperCase()){
                 case 'CHECK': { return res.json(this.createResponse('Заказ обработан!')) }
                 case 'PAY': { 
-                    let user = await User.findOne({ email });
+                    let user = await User.findOne({ where: { email }});
                     if(!user){ return res.json(this.createError("Валидация заказа провалена!"))}
                     user.crystals += orderSum;
                     await user.save();
