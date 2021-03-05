@@ -6,8 +6,17 @@ const News      = require('../database/models/News');
 const User      = require('../database/models/User');
 const Streams   = require('../database/models/Streams');
 const isManager = require('../middlewares/isManager');
+const paginate  = require('../utils/paginate');
 
-_route.get('/news', async (req, res) => {});
+// Получить новости по страницам
+_route.get('/news', async (req, res) => {
+    try {
+        if(!req.query.page){ return res.status(400).json({ message: "Страница не указана", message: "Page not defined" }); }
+        let news = await paginate(News, req.query.page);
+        return res.json(news);
+    } catch (error) { return errorHear.hear(res, error); }
+});
+// Добавить новость
 _route.post('/news/add', multer({
     storage: multer.diskStorage({
         destination: path.resolve('..', 'images'),
@@ -25,6 +34,7 @@ _route.post('/news/add', multer({
         return res.json(news.toJSON());
     } catch (error) { return errorHear.hear(res, error); }
 });
+// Редактировать новость
 _route.post('/news/:id/edit', async (req, res) => {
     try {
         if(!req.params.id || !Number.isInteger(Number(req.params.id))){ return res.status(400).json({ message: "Неизвеcтный ID новости", message_en: "Unknown news ID" }); }
@@ -36,6 +46,7 @@ _route.post('/news/:id/edit', async (req, res) => {
         return res.json(news.toJSON());
     } catch (error) { return errorHear.hear(res, erorr); }
 });
+// Удалить новость
 _route.post('/news/:id/delete', async (req, res) => {
     try {
         if(!req.params.id){ return res.status(400).json({ message: "Неверный ID новости", message_en: "Invalid news id" }); }
@@ -46,12 +57,15 @@ _route.post('/news/:id/delete', async (req, res) => {
     } catch (error) { return errorHear.hear(res, error); }
 });
 
+// Стримеры 
+// Получить стримеров
 _route.get('/streams', async (req, res) => {
     try {
         let streams = await Streams.findAll();
         return res.json(streams);
     } catch (error) { return errorHear.hear(res, error); }
 });
+// Добавить стримера
 _route.post('/streams/add', async (req, res) => {
     try {
         if(!req.body.channel){ return res.status(400).json({ message: "Название канала не указано", message_en: "Channel name not defined" }); }
@@ -62,6 +76,7 @@ _route.post('/streams/add', async (req, res) => {
         return res.json(stream.toJSON());
     } catch (error) { return errorHear.hear(res, error); }
 });
+// Удалить стримера
 _route.post('/streams/:id/delete', async (req, res) => {
     try {
         if(!req.params.id || !Number.isInteger(Number(req.params.id))){ return res.status(400).json({ message: "Неизвеcтный ID стрима", message_en: "Unknown stream ID" }); }
@@ -72,6 +87,7 @@ _route.post('/streams/:id/delete', async (req, res) => {
     } catch (error) { return errorHear.hear(res, error); }
 });
 
+// Редактировать роль пользователя
 _route.post('/role/edit', async (req, res) => {
     try {
         if(!req.body.email){ return res.status(400).json({ message: "Неверный E-Mail", message_en: "Invalid E-Mail" }); }
