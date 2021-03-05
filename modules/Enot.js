@@ -8,7 +8,7 @@ module.exports  = class EnotIo {
         let merchant_id     = config.enotio.merchantId;
         let secret_word     = config.enotio.secretWord;
         let sign = `${merchant_id}:${order_amount}:${secret_word}:${payment_id}`;
-        return sign;
+        return md5(sign);
     }
 
     async getURL(email, sum){
@@ -26,14 +26,14 @@ module.exports  = class EnotIo {
         try {
             let { merchant, amount:sum, merchant_id:id, sign_2 } = req.body;
             if(merchant != config.merchantId){ return res.status(400).write('Проверка заказа не пройдена'); }
-            let sign = `${merchant}:${amount}:${config.enotio.secretWord}:${merchant_id}`;
+            let sign = md5(`${merchant}:${amount}:${config.enotio.secretWord2}:${merchant_id}`);
             if(sign != sign_2){ return res.status(400).wtire('Проверка заказа не пройдена'); }
             let payment = await EnotIO.findOne({ where: { sum, id }});
             if(!payment){ return res.status(404).write('Заказ не найден'); }
             let user = await User.findOne({ where: { email: payment.email }});
             user.crystals += amount;
             await user.save();
-            return res.writel('Good'); 
+            return res.write('Good'); 
         } catch (error) {
             return res.status(500).write('Server error');
         }
