@@ -19,7 +19,7 @@ _route.get('/news', async (req, res) => {
 // Добавить новость
 _route.post('/news/add', multer({
     storage: multer.diskStorage({
-        destination: path.resolve('..', 'images'),
+        destination: path.resolve('images'),
         filename: (req, file, callback) => {
             return callback(null, `${file.originalname}`);
         }

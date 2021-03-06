@@ -5,6 +5,7 @@ const cors      = require('cors');
 const helmet    = require('helmet');
 const moment    = require('moment');
 const config    = require('./config.json');
+const path      = require('path');
 
 const app       = express();
 const server    = http.createServer(app);
@@ -44,6 +45,8 @@ app.use(logger);
 
 // Use Routes
 app.all('/', (req, res) => res.json({ date: moment().format("HH:mm:ss, DD.MM.YYYY a"), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
+app.get('/images', express.static(path.resolve(__dirname, 'images')));
+app.get('/skins', express.static(path.resolve(__dirname, 'skins')));
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/donate', DonateRoute);
