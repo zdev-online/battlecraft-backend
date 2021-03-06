@@ -24,6 +24,7 @@ const NewsRoute     = require('./routes/news');
 const ManageRoute   = require('./routes/manage');
 const DonateRoute   = require('./routes/donate');
 const StreamsRoute  = require('./routes/streams');
+const ShopRoute     = require('./routes/shop');
 
 // Middlewares
 const parseToken    = require('./middlewares/parseToken');
@@ -51,6 +52,7 @@ app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/donate', DonateRoute);
 app.use('/streams', StreamsRoute);
+app.use('/shop', ShopRoute);
 app.use('/user', ifAuthed, UserRoute);
 app.use('/manage', ifAuthed, isManager(), ManageRoute);
 app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
