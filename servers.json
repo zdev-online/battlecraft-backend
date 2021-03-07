@@ -1,6 +1,16 @@
 [
-    "mcfunny.su",
-    "mcfunny.su",
-    "Invalid IP",
-    ""
+    {
+        "table_name": "serverOne_permissions_inheritance",
+        "model_name": "server_one",
+        "type": "pex",
+        "address": "",
+        "password": ""
+    },
+    {
+        "table_name": "serverTwo_user_permissions",
+        "model_name": "server_two",
+        "type": "luckyperms",
+        "address": "",
+        "password": ""
+    }
 ]

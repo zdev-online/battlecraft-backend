@@ -1,5 +1,5 @@
 const { sequelize, DataTypes:Types }  = require('../database');
-const config = require('./permissions.json');
+const config = require('../../servers.json');
 const models = {};
 
 for(let i in config){
