@@ -5,8 +5,10 @@ const errorHear = require('../utils/errorHear');
 const News      = require('../database/models/News');
 const User      = require('../database/models/User');
 const Streams   = require('../database/models/Streams');
+const Products  = require('../database/models/Products');
 const isManager = require('../middlewares/isManager');
 const paginate  = require('../utils/paginate');
+const fs        = require('fs');
 
 // Новости
 // Получить новости по страницам
@@ -21,9 +23,7 @@ _route.get('/news', async (req, res) => {
 _route.post('/news/add', multer({
     storage: multer.diskStorage({
         destination: path.resolve('images'),
-        filename: (req, file, callback) => {
-            return callback(null, `${file.originalname}`);
-        }
+        filename: (req, file, callback) => callback(null, `${file.originalname}`)
     })
 }).single('image'), async (req, res) => {
     try {
@@ -113,12 +113,78 @@ _route.post('/role/edit', async (req, res) => {
 
 // Магазин
 // Получить товары
-_route.post('/shop', async (req, res) => {});
+_route.get('/shop', async (req, res) => {});
 // Добавить товар
-_route.post('/shop/add', async (req, res) => {});
+_route.post('/shop/add', multer({
+    destination: path.resolve('images'),
+    filename: (req, file, callback) => callback(null, `${file.originalname}`)
+}).single('image'), async (req, res) => {
+    try {
+        let { type, server, price, command } = req.body;
+        let image = req.file;
+        // Провека на то есть ли type и он не пустой
+        if(!type || !type.length){ return res.status(400).json({ message: "Не указан товара", message_en: "Product type undefined" }); }
+        // Проверка на допустимые типы
+        if(type != 'item' && type != 'privilege'){ return res.status(400).json({ message: "Неверный тип товара", message_en: "Invalid product type" }); }
+        // Проверка на то, определен ли сервер
+        if(!server || !server.length){ return res.status(400).json({ message: "Сервер не указан", message_en: "Server undefined" }); }
+        // Проверка на то, что price - является целочисленной
+        if(!Number.isInteger(Number(price))){ return res.status(400).json({ message: "Цена не указана", message_en: "Price undefined" }); }
+        // Создание товара
+        let product = await Products.create({ 
+            price, server, type, 
+            command: command ? command : null, 
+            image: image ? image.filename : null 
+        });
+        return res.json(product.toJSON());
+    } catch (error) { return errorHear.hear(res, error); }
+});
 // Редактировать товар
-_route.post('/shop/:id/edit', async (req, res) => {});
+_route.post('/shop/:id/edit', multer({
+    destination: path.resolve('images'),
+    filename: (req, file, callback) => callback(null, `${file.originalname}`)
+}).single('image'), async (req, res) => {
+    try {
+        let { type, server, price, command, id } = req.body;
+        let image = req.file;
+        // Проверки
+        // Является ли id - целочисленной перменной
+        if(!Number.isInteger(Number(id)) || !id){ return res.status(400).json({ message: "Неверный ID товара", message_en: "Invalid product ID" }); }
+        // Провека на то есть ли type и он не пустой
+        if(!type || !type.length){ return res.status(400).json({ message: "Не указан товара", message_en: "Product type undefined" }); }
+        // Проверка на допустимые типы
+        if(type != 'item' && type != 'privilege'){ return res.status(400).json({ message: "Неверный тип товара", message_en: "Invalid product type" }); }
+        // Проверка на то, определен ли сервер
+        if(!server || !server.length){ return res.status(400).json({ message: "Сервер не указан", message_en: "Server undefined" }); }
+        // Проверка на то, что price - является целочисленной
+        if(!Number.isInteger(Number(price))){ return res.status(400).json({ message: "Цена не указана", message_en: "Price undefined" }); }
+        // Находим товар
+        let product = await Products.findOne({ where: { id } });
+        // Обновления
+        image && fs.unlinkSync(path.resolve('images', product.image)); 
+        product.type    = type; 
+        product.server  = server;
+        product.price   = price;
+        product.command = command ? command : null;
+        product.image   = image ? image.filename : null; 
+        // Сохроняем товар
+        await product.save();
+        return res.json(product.toJSON());
+    } catch (error) { return errorHear.hear(res, error); }
+});
 // Удалить товар
-_route.post('/shop/:id/delete', async (req, res) => {});
+_route.post('/shop/:id/delete', async (req, res) => {
+    try {
+        let { id } = req.body;
+        // Проверка являтся ли id - целочисленной перменной
+        if(!Number.isInteger(Number(id))){ return res.status(400).json({ message: "Не указан ID товара", message_en: "Invalid product ID"}); }
+        // Проверка есть ли товар в базе
+        let product = await Products.findOne({ where: { id }});
+        if(!product){ return res.status(400).json({ message: "Товар не найден", message_en: "Product not found" }); }
+        // Удаление товара
+        await product.destroy();
+        return res.json({ message: "Товар удален", message_en: "Product deleted"});
+    } catch (error) { return errorHear.hear(res, error); }
+});
 
 module.exports = _route;

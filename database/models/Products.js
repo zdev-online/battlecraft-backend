@@ -8,3 +8,5 @@ const Products = sequelize.define('Products', {
     command:{ type: Types.STRING, allowNull: true  },
     image:  { type: Types.STRING, allowNull: true  }
 }, { tableName: "products" });
+
+module.exports = Products;
