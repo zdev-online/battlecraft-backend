@@ -8,6 +8,7 @@ const Streams   = require('../database/models/Streams');
 const isManager = require('../middlewares/isManager');
 const paginate  = require('../utils/paginate');
 
+// Новости
 // Получить новости по страницам
 _route.get('/news', async (req, res) => {
     try {
@@ -87,6 +88,7 @@ _route.post('/streams/:id/delete', async (req, res) => {
     } catch (error) { return errorHear.hear(res, error); }
 });
 
+// Пользователи
 // Редактировать роль пользователя
 _route.post('/role/edit', async (req, res) => {
     try {
@@ -108,5 +110,15 @@ _route.post('/role/edit', async (req, res) => {
         });
     } catch (error) { return errorHear.hear(res, error); }
 });
+
+// Магазин
+// Получить товары
+_route.post('/shop', async (req, res) => {});
+// Добавить товар
+_route.post('/shop/add', async (req, res) => {});
+// Редактировать товар
+_route.post('/shop/:id/edit', async (req, res) => {});
+// Удалить товар
+_route.post('/shop/:id/delete', async (req, res) => {});
 
 module.exports = _route;
