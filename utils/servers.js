@@ -2,6 +2,13 @@ const servers = require('../servers.json');
 const gamedig = require('gamedig');
 const Rcon    = require('modern-rcon');
 
+const serversById = {};
+const serversInfoForClient = [];
+
+for (let i = 0; i < servers.length; i++) {
+    serversById[servers[i].id] = servers[i];
+    serversInfoForClient.push({ name: servers[i].name, ip: servers[i].address, id: servers[i].model_name });
+}
 
 module.exports.getServers = async () => {
     let serversInfo = [];
@@ -35,3 +42,6 @@ module.exports.sendCommand = async (server, command) => {
     await connection.disconnect();
     return data;
 }
+
+module.exports.getData = (id) => serversById[id] ? serversById[id] : false;
+module.exports.getDataForClient = (req, res) => res.json(serversInfoForClient); 

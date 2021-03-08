@@ -33,6 +33,9 @@ const ifAuthed      = require('./middlewares/ifAuthed');
 const isManager     = require('./middlewares/isManager');
 const logger        = require('./middlewares/logger');
 
+// Utils
+const { getDataForClient }  = require('./utils/servers');
+
 // Settings
 moment.locale('ru');
 
@@ -48,6 +51,7 @@ app.use(logger);
 app.all('/', (req, res) => res.json({ date: moment().format("HH:mm:ss, DD.MM.YYYY a"), desc: "Возникли проблемы? Обратитесь к разработчику API", developer: "https://vk.com/id171745503" }));
 app.get('/images', express.static(path.resolve(__dirname, 'images')));
 app.get('/skins', express.static(path.resolve(__dirname, 'skins')));
+app.get('/servers', getDataForClient);
 app.use('/auth', AuthRoute);
 app.use('/news', NewsRoute);
 app.use('/donate', DonateRoute);

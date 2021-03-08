@@ -1,14 +1,16 @@
 const _route    = require('express').Router();
 const multer    = require('multer');
 const path      = require('path');
+const fs        = require('fs');
 const errorHear = require('../utils/errorHear');
+const {getData} = require('../utils/servers');
 const News      = require('../database/models/News');
 const User      = require('../database/models/User');
 const Streams   = require('../database/models/Streams');
 const Products  = require('../database/models/Products');
 const isManager = require('../middlewares/isManager');
 const paginate  = require('../utils/paginate');
-const fs        = require('fs');
+
 
 // Новости
 // Получить новости по страницам
@@ -120,19 +122,21 @@ _route.post('/shop/add', multer({
     filename: (req, file, callback) => callback(null, `${file.originalname}`)
 }).single('image'), async (req, res) => {
     try {
-        let { type, server, price, command } = req.body;
+        let { type, server:srvId, price, command } = req.body;
         let image = req.file;
         // Провека на то есть ли type и он не пустой
         if(!type || !type.length){ return res.status(400).json({ message: "Не указан товара", message_en: "Product type undefined" }); }
         // Проверка на допустимые типы
         if(type != 'item' && type != 'privilege'){ return res.status(400).json({ message: "Неверный тип товара", message_en: "Invalid product type" }); }
         // Проверка на то, определен ли сервер
-        if(!server || !server.length){ return res.status(400).json({ message: "Сервер не указан", message_en: "Server undefined" }); }
+        if(!srvId || !srvId.length){ return res.status(400).json({ message: "Сервер не указан", message_en: "Server undefined" }); }
+        // Проверка на существование сервера
+        if(!getData(srvId)){ return res.status(400).json({ message: "Сервер не найден", message_en: "Server not found" }); }
         // Проверка на то, что price - является целочисленной
         if(!Number.isInteger(Number(price))){ return res.status(400).json({ message: "Цена не указана", message_en: "Price undefined" }); }
         // Создание товара
         let product = await Products.create({ 
-            price, server, type, 
+            price, srvId, type, 
             command: command ? command : null, 
             image: image ? image.filename : null 
         });
@@ -145,7 +149,7 @@ _route.post('/shop/:id/edit', multer({
     filename: (req, file, callback) => callback(null, `${file.originalname}`)
 }).single('image'), async (req, res) => {
     try {
-        let { type, server, price, command, id } = req.body;
+        let { type, server:srvId, price, command, id } = req.body;
         let image = req.file;
         // Проверки
         // Является ли id - целочисленной перменной
@@ -155,7 +159,7 @@ _route.post('/shop/:id/edit', multer({
         // Проверка на допустимые типы
         if(type != 'item' && type != 'privilege'){ return res.status(400).json({ message: "Неверный тип товара", message_en: "Invalid product type" }); }
         // Проверка на то, определен ли сервер
-        if(!server || !server.length){ return res.status(400).json({ message: "Сервер не указан", message_en: "Server undefined" }); }
+        if(!srvId || !srvId.length){ return res.status(400).json({ message: "Сервер не указан", message_en: "Server undefined" }); }
         // Проверка на то, что price - является целочисленной
         if(!Number.isInteger(Number(price))){ return res.status(400).json({ message: "Цена не указана", message_en: "Price undefined" }); }
         // Находим товар
@@ -163,7 +167,7 @@ _route.post('/shop/:id/edit', multer({
         // Обновления
         image && fs.unlinkSync(path.resolve('images', product.image)); 
         product.type    = type; 
-        product.server  = server;
+        product.srvId   = srvId;
         product.price   = price;
         product.command = command ? command : null;
         product.image   = image ? image.filename : null; 
