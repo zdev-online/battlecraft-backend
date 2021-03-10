@@ -59,7 +59,7 @@ app.use('/streams', StreamsRoute);
 app.use('/shop', ShopRoute);
 app.use('/user', ifAuthed, UserRoute);
 app.use('/manage', ifAuthed, isManager(), ManageRoute);
-app.use((req, res) => res.status(404).json({ message: 'Route not found'}));
+app.use((req, res) => res.status(404).json({ message: 'Путь\\Метод API не найден', message_en: "Route\\Method API not found"}));
 
 // API - Server start
 server.listen(config.server.port, async () => {
