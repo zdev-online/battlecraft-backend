@@ -117,7 +117,7 @@ _route.post('/change/skin', multer({
     try {
         if(!req.file){ return res.status(400).json({ message: "Файл скина не указан", message_en: "The skin file is not specified"}); }
         let user = await User.findOne({ where: { email: req.user.email } });
-        user.skinPath = req.file.filename;
+        user.skin = req.file.filename;
         await user.save();
         return res.json({ message: "Скин установлен", message_en: "Skin installed"})
     } catch (error) { return errorHelper.hear(res, error)} 

@@ -17,7 +17,7 @@ const User = sequelize.define('User', {
     emailCode:  { type: Types.INTEGER, allowNull: true },
     tfaSecret:  { type: Types.STRING, allowNull: true },
     tfaType:    { type: Types.STRING, defaultValue: 'none' },
-    skinPath:   { type: Types.STRING, allowNull: true, defaultValue: "/skins/steve.png" },
+    skin:       { type: Types.STRING, allowNull: true, defaultValue: "steve.png" },
     role:       { type: Types.STRING, allowNull: false, defaultValue: 'user' },
     crystals:   { type: Types.BIGINT, allowNull: false, defaultValue: 0 }
 });
