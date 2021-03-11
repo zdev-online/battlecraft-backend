@@ -20,6 +20,8 @@ const User = sequelize.define('User', {
     skin:       { type: Types.STRING, allowNull: true, defaultValue: "steve.png" },
     role:       { type: Types.STRING, allowNull: false, defaultValue: 'user' },
     crystals:   { type: Types.BIGINT, allowNull: false, defaultValue: 0 }
+}, {
+    tableName: "users"
 });
 
 User.prototype.isValidPassword = function(candidate){
