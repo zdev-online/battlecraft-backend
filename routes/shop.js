@@ -22,6 +22,43 @@ _route.get('/', async (req, res) => {
         return res.json(data);
     } catch (error) { return errorHear.hear(res, error) }
 });
-_route.post('/:id/buy', ifAuthed, async (req, res) => {});
+_route.post('/:id/buy', ifAuthed, async (req, res) => {
+    try {
+        let { server:srvId, id:productId, count } = req.body;
+        let product = await Products.findOne({ id: productId });
+        // Если товара - нет
+        if(!product){ return res.status(404).json({ message: "Товар не найден", message_en: "Product not found" }); }
+        // Если цена товара больше, чем кристаллов у пользователя
+        if(product.price > req.user.crystals){ return res.status(403).json({ message: "Не хватает кристаллов", message: "Not enough crystals" }); }
+        switch(product.type){
+            // Вещь
+            case 'item': {
+                // Указано ли кол-во предметов
+                if(Number.isInteger(Number(count))){ return res.status(400).json({ message: "Укажите количество", message_en: "Specify the quantity" }); }
+                // Получаем данные сервера
+                let server = srvUtil.getData(srvId);
+                // Если нету сервера, то отправляем ошибку
+                if(!server){ return res.status(404).json({ message: "Сервер не найден", message_en: "Server not found" }); }
+                // Формируем команду для RCON
+                let command = product.command;
+                command = command.replace('%NICK%', req.user.login)
+                command = command.replace('%COUNT%', count);
+                // Отправляем
+                await srvUtil.sendCommand(server, command);
+                // Нахордим пользователя
+                let user = await User.findOne();
+                // Вычитаем кристаллы,  сохраняем и отправляем ответ
+                user.crystals -= product.price;
+                await user.save();
+                return res.json({ product });
+            }
+            // Привелегия
+            case 'privilege': {
+
+            }
+            default: { return res.status(500).json({ message_en: 'Server error', message: 'Ошибка на стороне сервера'}); }
+        }
+    } catch (error) { return errorHear.hear(res, error); }
+});
 
 module.exports = _route;
