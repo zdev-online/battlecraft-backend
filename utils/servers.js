@@ -44,4 +44,7 @@ module.exports.sendCommand = async (server, command) => {
 }
 
 module.exports.getData = (id) => serversById[id] ? serversById[id] : false;
+
 module.exports.getDataForClient = (req, res) => res.json(serversInfoForClient); 
+
+module.exports.isValidPrivilege = (string) => ["vip", "premium", "ultra", "legend", "supreme", "sponsor"].includes(string);
