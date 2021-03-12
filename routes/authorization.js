@@ -6,6 +6,7 @@ const jwt               = require('../utils/jwt');
 const tfa               = require('../utils/2fa');
 const mailer            = require('../utils/mailer');
 const errorHelper       = require('../utils/errorHear');
+const { Op }            = require('sequelize');
 
 // Регистрация
 _route.post("/signup", _ifNotAuthed, async (req, res) => {
@@ -13,7 +14,7 @@ _route.post("/signup", _ifNotAuthed, async (req, res) => {
         if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
         if(!req.body.login){ return res.status(400).json({message: 'Не указан логин', message_en: 'No username specified'})}
         
-        let accountNotFree = await User.findOne({where: { email: req.body.email , login: req.body.login  }});
+        let accountNotFree = await User.findOne({where: { [Op.or]: [{email: req.body.email}, {login: req.body.login}]  }});
         if(accountNotFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
         
         if(!req.body.password){ return res.status(400).json({message: 'Не указан пароль', message_en: 'A password is not specified'})}
