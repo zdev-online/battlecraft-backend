@@ -65,7 +65,14 @@ _route.post('/:id/buy', ifAuthed, async (req, res) => {
                 // Узнаем тип системы привилегий у сервера
                 switch(db.type){
                     case 'pex': {
-                        
+                        let data = db.db.findOne({ where: { child: req.user.login }});
+                        let user = await User.findOne({  where: { email: req.user.email } });
+                        if(!data){ data = db.db.build({ child: req.user.login }); }
+                        data.parent = req.body.privilege;
+                        user.crystals -= count;
+                        await user.save();
+                        await data.save();
+                        return res.json({ privilege: req.body.privilege });
                     }
                     case 'luckyperms': {
 
