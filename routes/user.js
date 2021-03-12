@@ -1,11 +1,14 @@
 const _route        = require('express').Router();
 const path          = require('path');
 const multer        = require('multer');
+const axios         = require('axios').default;
 const errorHelper   = require('../utils/errorHear');
 const tfa           = require('../utils/2fa');
 const jwt           = require('../utils/jwt');
 const User          = require('../database/models/User');
 const Temp2fa       = require('../database/models/Temp2fa');
+const Players       = require('../database/models/Players');
+const Skins         = require('../database/models/Skins');
 
 // Запрос на добавление \ сброс 2-х факторной аунтентификации
 _route.get('/2fa', async (req, res) => {
@@ -116,10 +119,45 @@ _route.post('/change/skin', multer({
 }).single('skin'), async (req, res) => {
     try {
         if(!req.file){ return res.status(400).json({ message: "Файл скина не указан", message_en: "The skin file is not specified"}); }
-        let user = await User.findOne({ where: { email: req.user.email } });
-        user.skin = req.file.filename;
-        await user.save();
-        return res.json({ message: "Скин установлен", message_en: "Skin installed"})
+        // Создаем форму с изображением
+        let form        = new FormData();
+        form.append('file', req.file.buffer);
+        // Отправляем скин на генерацию
+        let { data }    = await axios.post("https://api.mineskin.org/generate/upload", form);
+        if(data.data){
+            let { texture } = data.data;
+            if(!texture.value || !texture.signature){ return res.status(500).json({ message: "Не удалось загрузить скин!", message_en: "Failed to load skin" }); }
+            let { value, signature } = texture;
+            let timestamp = "9223243187835955807";
+            // Ищем в скинах - скин по логину (ник) пользователя
+            let skin = await Skins.findOne({ where: { Nick: req.user.login }});
+            // Если нету генерируем
+            if(!skin){  skin = Skins.build({ Nick: req.user.login }); }
+            // Подставляем нужные значения
+            skin.Value      = value;
+            skin.Signature  = signature;
+            skin.timestamp  = timestamp;
+            // Сохраняем скин
+            await skin.save();
+            // Ищем в таблице игроков - игрока по логину (ник) пользователя
+            let player = await Players.findOne({ where: { Nick: req.user.login } });
+            // Если нету - генерируем
+            if(!player){ player = Players.build({ Nick: req.user.login }); }
+            // Подставляем значения
+            player.Skin = ` ${req.user.login}`;
+            // Сохраняем
+            await player.save();
+            // Ищем пользователя в таблице пользователей
+            let user = await User.findOne({ where: { email: req.user.email } });
+            // Обновляем имя файла скин
+            user.skin = req.file.filename;
+            // Сохраняем
+            await user.save();
+            // Отправляем ответ
+            return res.json({ skin: user.skin });
+        } else {
+            return res.status(500).json({ message: "Не удалось загрузить скин!", message_en: "Failed to load skin" });
+        }
     } catch (error) { return errorHelper.hear(res, error)} 
  });
 
