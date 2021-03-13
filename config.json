@@ -6,7 +6,12 @@
         "password": "",
         "database": "battlecraft",
         "dialect": "mysql",
-        "logging": false
+        "logging": false,
+        "define": {
+            "charset": "utf8",    
+            "collate": "utf8_general_ci",     
+            "timestamps": true
+        }
     },
     "server": {
         "port": 4000
