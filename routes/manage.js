@@ -26,7 +26,11 @@ _route.post('/news/add', multer({
     storage: multer.diskStorage({
         destination: path.resolve('images'),
         filename: (req, file, callback) => callback(null, `${file.originalname}`)
-    })
+    }),
+    fileFilter: (req, file, callback) => {
+        if(!req.body.title || !req.body.text){ return callback(null, false); }
+        return callback(null, true);
+    }
 }).single('image'), async (req, res) => {
     try {
         if(!req.body.title){ return res.status(400).json({ message: "Не указан заголовок", message_en: "Title not defined" }); }

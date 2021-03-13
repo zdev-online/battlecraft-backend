@@ -3,7 +3,7 @@ const { Sequelize, Model, DataTypes }   = require('sequelize');
 
 const sequelize = new Sequelize(config.database);
 
-sequelize.authenticate({}).catch(error => {
+sequelize.authenticate({ logging: false }).catch(error => {
     console.error(`Не удалось подлючиться к БД: ${error.message}`);
     console.error(`Stack: ${error.stack}`);
 }).then(() => {

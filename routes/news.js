@@ -5,8 +5,8 @@ const News          = require('../database/models/News');
 
 _route.get('/', async (req, res) => {
     try {
-        let news = await paginate(News, req.query.page || 1, {});
-        return res.json(news.length ? news : false);
+        let news = await paginate(News, req.query.page || 1);
+        return res.json(news.data.length ? news : false);
     } catch (error) { return errorHelper.hear(res, error); } 
 });
 

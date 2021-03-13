@@ -9,6 +9,7 @@ const User          = require('../database/models/User');
 const Temp2fa       = require('../database/models/Temp2fa');
 const Players       = require('../database/models/Players');
 const Skins         = require('../database/models/Skins');
+const FormData      = require('form-data');
 
 // Запрос на добавление \ сброс 2-х факторной аунтентификации
 _route.get('/2fa', async (req, res) => {
@@ -121,9 +122,9 @@ _route.post('/change/skin', multer({
         if(!req.file){ return res.status(400).json({ message: "Файл скина не указан", message_en: "The skin file is not specified"}); }
         // Создаем форму с изображением
         let form        = new FormData();
-        form.append('file', req.file.buffer);
+        form.append('file', req.file.stream);
         // Отправляем скин на генерацию
-        let { data }    = await axios.post("https://api.mineskin.org/generate/upload", form);
+        let { data }    = await axios.post("https://api.mineskin.org/generate/upload", form, {headers: form.getHeaders()});
         if(data.data){
             let { texture } = data.data;
             if(!texture.value || !texture.signature){ return res.status(500).json({ message: "Не удалось загрузить скин!", message_en: "Failed to load skin" }); }
