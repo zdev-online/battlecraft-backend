@@ -15,7 +15,7 @@ for(let i in config){
         }, { tableName: config[i].table_name });
     } else if (config[i].type == 'luckyperms'){
         models[config[i].model_name].db = sequelize.define(config[i].model_name, {
-            uuid:       { type: Types.BIGINT, primaryKey: true, allowNull: false},
+            uuid:       { type: Types.STRING, primaryKey: true, allowNull: false},
             permission: { type: Types.STRING, allowNull: false},
             value:      { type: Types.BIGINT, defaultValue: 1},
             server:     { type: Types.STRING, defaultValue: "global"},

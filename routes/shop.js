@@ -75,7 +75,14 @@ _route.post('/:id/buy', ifAuthed, async (req, res) => {
                         return res.json({ privilege: req.body.privilege });
                     }
                     case 'luckyperms': {
-
+                        let data = db.db.findOne({ where: { uuid: req.user.login }});
+                        let user = await User.findOne({ where: { email: req.user.email }});
+                        if(!data){ data = db.db.build({ uuid: req.user.login }); }
+                        data.permission = req.body.privilege;
+                        user.crystals -= count;
+                        await user.save();
+                        await data.save();
+                        return res.json({ privilege: req.body.privilege })
                     }
                     default: { return res.status(404).json({ message: "Неизвестный тип сервера", message_en: "Unknown server type" }); }
                 }

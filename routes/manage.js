@@ -25,7 +25,14 @@ _route.get('/news', async (req, res) => {
 _route.post('/news/add', multer({
     storage: multer.diskStorage({
         destination: path.resolve('images'),
-        filename: (req, file, callback) => callback(null, `${file.originalname}`)
+        filename: (req, file, callback) => {
+            let type = path.extname(file.originalname);
+            let types = ['.png', '.jpg', '.jpeg', '.gif', ".webp"];
+            if(types.includes(type)){
+                return callback(null, `news_${new Date().getTime()}${type}`);
+            }
+            return callback(new Error(`Разрешены только изображения`));
+        }
     }),
     fileFilter: (req, file, callback) => {
         if(!req.body.title || !req.body.text){ return callback(null, false); }
@@ -59,6 +66,7 @@ _route.post('/news/:id/delete', async (req, res) => {
         if(!req.params.id){ return res.status(400).json({ message: "Неверный ID новости", message_en: "Invalid news id" }); }
         let news = await News.findOne({where: { id: req.params.id }});
         if(!news){ return res.status(400).json({ message: "Неверный ID новости", message_en: "Invalid news id" }); }
+        news.img_url.length && fs.unlinkSync(path.resolve('images', news.img_url));
         await news.destroy({});
         return res.json({ message: 'Новость удалена', message_en: "News deleted" });
     } catch (error) { return errorHear.hear(res, error); }
@@ -123,7 +131,14 @@ _route.get('/shop', async (req, res) => {});
 // Добавить товар
 _route.post('/shop/add', multer({
     destination: path.resolve('images'),
-    filename: (req, file, callback) => callback(null, `${file.originalname}`)
+    filename: (req, file, callback) => {
+        let type = path.extname(file.originalname);
+        let types = ['.png', '.jpg', '.jpeg', '.gif', ".webp"];
+        if(types.includes(type)){
+            return callback(null, `shop_${new Date().getTime()}${type}`);
+        }
+        return callback(new Error(`Разрешены только изображения`));
+    }
 }).single('image'), async (req, res) => {
     try {
         let { type, server:srvId, price, command } = req.body;
@@ -150,7 +165,14 @@ _route.post('/shop/add', multer({
 // Редактировать товар
 _route.post('/shop/:id/edit', multer({
     destination: path.resolve('images'),
-    filename: (req, file, callback) => callback(null, `${file.originalname}`)
+    filename: (req, file, callback) => {
+        let type = path.extname(file.originalname);
+        let types = ['.png', '.jpg', '.jpeg', '.gif', ".webp"];
+        if(types.includes(type)){
+            return callback(null, `shop_${new Date().getTime()}${type}`);
+        }
+        return callback(new Error(`Разрешены только изображения`));
+    }
 }).single('image'), async (req, res) => {
     try {
         let { type, server:srvId, price, command, id } = req.body;
@@ -190,6 +212,7 @@ _route.post('/shop/:id/delete', async (req, res) => {
         let product = await Products.findOne({ where: { id }});
         if(!product){ return res.status(400).json({ message: "Товар не найден", message_en: "Product not found" }); }
         // Удаление товара
+        product.image && fs.unlinkSync(path.resolve('images', product.image));
         await product.destroy();
         return res.json({ message: "Товар удален", message_en: "Product deleted"});
     } catch (error) { return errorHear.hear(res, error); }
