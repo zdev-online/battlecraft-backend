@@ -124,10 +124,10 @@ _route.post('/change/skin', multer({
         let form        = new FormData();
         form.append('file', req.file.stream);
         // Отправляем скин на генерацию
-        let { data }    = await axios.post("https://api.mineskin.org/generate/upload", form, {headers: form.getHeaders()});
-        if(data.data){
-            let { texture } = data.data;
-            if(!texture.value || !texture.signature){ return res.status(500).json({ message: "Не удалось загрузить скин!", message_en: "Failed to load skin" }); }
+        let data        = await axios.post("https://api.mineskin.org/generate/upload", form, {headers: form.getHeaders()});
+        if(data.data.data){
+            let { texture } = data.data.data;
+            if(!texture || !texture.value || !texture.signature){ return res.status(500).json({ message: "Не удалось загрузить скин!", message_en: "Failed to load skin" }); }
             let { value, signature } = texture;
             let timestamp = "9223243187835955807";
             // Ищем в скинах - скин по логину (ник) пользователя
