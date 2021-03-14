@@ -5,7 +5,7 @@ module.exports  = async (model, page, where = {}) => {
     let data    = await model.findAndCountAll({ limit, offset, where });
     data.current_page   = Number(page);
     data.page_count     = Math.ceil(data.count / limit);
-    data.data           = data.rows;
+    data.data           = data.rows.map((item) => item.toJSON());
     delete data.rows;
     return data;
 }

@@ -16,6 +16,7 @@ const Temp2fa       = require('./database/models/Temp2fa');
 const News          = require('./database/models/News');
 const Donate        = require('./database/models/Donate');
 const Streams       = require('./database/models/Streams');
+const Products      = require('./database/models/Products');
 
 // Routes
 const AuthRoute     = require('./routes/authorization');
@@ -75,6 +76,8 @@ server.listen(config.server.port, async () => {
         console.log(`News sync successful`);
         await Streams.sync();
         console.log(`Streams sync successful`);
+        await Products.sync();
+        console.log(`Products sync successful`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }

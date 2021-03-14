@@ -130,21 +130,25 @@ _route.post('/role/edit', async (req, res) => {
 _route.get('/shop', async (req, res) => {});
 // Добавить товар
 _route.post('/shop/add', multer({
-    destination: path.resolve('images'),
-    filename: (req, file, callback) => {
-        let type = path.extname(file.originalname);
-        let types = ['.png', '.jpg', '.jpeg', '.gif', ".webp"];
-        if(types.includes(type)){
-            return callback(null, `shop_${new Date().getTime()}${type}`);
+    storage: multer.diskStorage({
+        destination: path.resolve('images'),
+        filename: (req, file, callback) => {
+            let type = path.extname(file.originalname);
+            let types = ['.png', '.jpg', '.jpeg', '.gif', ".webp"];
+            if(types.includes(type)){
+                return callback(null, `shop_${new Date().getTime()}${type}`);
+            }
+            return callback(new Error(`Разрешены только изображения`));
         }
-        return callback(new Error(`Разрешены только изображения`));
-    }
+    })
 }).single('image'), async (req, res) => {
     try {
-        let { type, server:srvId, price, command } = req.body;
+        let { type, server:srvId, price, command, title } = req.body;
         let image = req.file;
+        // Провека на то есть ли title и он не пустой
+        if(!title || !title.length){ return res.status(400).json({ message: "Не указано название товара", message_en: "Product type undefined" }); }
         // Провека на то есть ли type и он не пустой
-        if(!type || !type.length){ return res.status(400).json({ message: "Не указан товара", message_en: "Product type undefined" }); }
+        if(!type || !type.length){ return res.status(400).json({ message: "Не указан тип товара", message_en: "Product type undefined" }); }
         // Проверка на допустимые типы
         if(type != 'item' && type != 'privilege'){ return res.status(400).json({ message: "Неверный тип товара", message_en: "Invalid product type" }); }
         // Проверка на то, определен ли сервер
@@ -155,7 +159,7 @@ _route.post('/shop/add', multer({
         if(!Number.isInteger(Number(price))){ return res.status(400).json({ message: "Цена не указана", message_en: "Price undefined" }); }
         // Создание товара
         let product = await Products.create({ 
-            price, srvId, type, 
+            price, server: srvId, type, title,
             command: command ? command : null, 
             image: image ? image.filename : null 
         });
@@ -205,7 +209,7 @@ _route.post('/shop/:id/edit', multer({
 // Удалить товар
 _route.post('/shop/:id/delete', async (req, res) => {
     try {
-        let { id } = req.body;
+        let { id } = req.params;
         // Проверка являтся ли id - целочисленной перменной
         if(!Number.isInteger(Number(id))){ return res.status(400).json({ message: "Не указан ID товара", message_en: "Invalid product ID"}); }
         // Проверка есть ли товар в базе

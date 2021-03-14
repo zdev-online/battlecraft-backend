@@ -6,7 +6,7 @@ const serversById = {};
 const serversInfoForClient = [];
 
 for (let i = 0; i < servers.length; i++) {
-    serversById[servers[i].id] = servers[i];
+    serversById[servers[i].model_name] = servers[i];
     serversInfoForClient.push({ name: servers[i].name, ip: servers[i].address, id: servers[i].model_name });
 }
 

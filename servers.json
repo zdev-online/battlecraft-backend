@@ -4,7 +4,7 @@
         "table_name": "serverOne_permissions_inheritance",
         "model_name": "server_one",
         "type": "pex",
-        "address": "192.168.0.1:8080",
+        "address": "mc.hypixel.net",
         "password": "root"
     },
     {
@@ -12,7 +12,7 @@
         "table_name": "serverTwo_user_permissions",
         "model_name": "server_two",
         "type": "luckyperms",
-        "address": "192.168.0.100:8080",
+        "address": "mc.hypixel.net",
         "password": "root"
     }
 ]
