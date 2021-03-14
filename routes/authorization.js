@@ -52,7 +52,8 @@ _route.post('/signin', _ifNotAuthed, async (req, res) => {
 // Получение данных пользователя
 _route.get('/user', _ifAuthed, async (req, res) => {
     try {
-        let user    = (await User.findOne({ where: { email: req.user.email }})).toJSON();
+        let user    = await User.findOne({ where: { email: req.user.email }});
+        user        = user.toJSON();
         let token   = jwt.getToken(user);
         delete user.password;
         delete user.emailCode;
