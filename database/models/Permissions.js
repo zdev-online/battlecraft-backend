@@ -10,7 +10,7 @@ for(let i in config){
             id:     { type: Types.BIGINT, autoIncrement: true, primaryKey: true},
             child:  { type: Types.STRING, allowNull: false},
             parent: { type: Types.STRING, allowNull: false},
-            type:   { type: Types.BIGINT, defaultValue: 1 },
+            type:   { type: Types.TINYINT, defaultValue: 1 },
             world:  { type: Types.STRING, allowNull: true }
         }, { tableName: config[i].table_name });
     } else if (config[i].type == 'luckyperms'){
