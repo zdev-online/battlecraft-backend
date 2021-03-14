@@ -2,4 +2,6 @@ node_modules
 tests
 
 /images
-!/images/steve.png
+/skins/*
+!/skins/steve.png
+

@@ -10,6 +10,7 @@ const Temp2fa       = require('../database/models/Temp2fa');
 const Players       = require('../database/models/Players');
 const Skins         = require('../database/models/Skins');
 const FormData      = require('form-data');
+const fs            = require('fs');
 
 // Запрос на добавление \ сброс 2-х факторной аунтентификации
 _route.get('/2fa', async (req, res) => {
@@ -107,13 +108,13 @@ _route.post('/change/email', async (req, res) => {
 
 // Смена скина! Content-Type: multipart/form-data 
 _route.post('/change/skin', multer({ 
-    dest: path.resolve('..', 'skins'),
     storage: multer.diskStorage({
+        destination: path.resolve('skins'),
         filename: (req, file, callback) => {
             if(file.mimetype == 'image/png'){
-                return callback(null, `${req.user.email}.png`);
+                return callback(false, `${req.user.email}.png`);
             }
-            return callback(new Error(`Только .png скины!`), null);
+            return callback(new Error(`Только .png скины!`));
         }
     }),
     limits: { fileSize: 1024 * 1024 }
@@ -122,7 +123,7 @@ _route.post('/change/skin', multer({
         if(!req.file){ return res.status(400).json({ message: "Файл скина не указан", message_en: "The skin file is not specified"}); }
         // Создаем форму с изображением
         let form        = new FormData();
-        form.append('file', req.file.stream);
+        form.append('file', fs.createReadStream(path.resolve('skins', `${req.user.email}.png`)));
         // Отправляем скин на генерацию
         let data        = await axios.post("https://api.mineskin.org/generate/upload", form, {headers: form.getHeaders()});
         if(data.data.data){
