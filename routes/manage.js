@@ -1,16 +1,16 @@
-const _route    = require('express').Router();
-const multer    = require('multer');
-const path      = require('path');
-const fs        = require('fs');
-const errorHear = require('../utils/errorHear');
-const {getData} = require('../utils/servers');
-const News      = require('../database/models/News');
-const User      = require('../database/models/User');
-const Streams   = require('../database/models/Streams');
-const Products  = require('../database/models/Products');
-const isManager = require('../middlewares/isManager');
-const paginate  = require('../utils/paginate');
-
+const _route        = require('express').Router();
+const multer        = require('multer');
+const path          = require('path');
+const fs            = require('fs');
+const errorHear     = require('../utils/errorHear');
+const {getData}     = require('../utils/servers');
+const News          = require('../database/models/News');
+const User          = require('../database/models/User');
+const Streams       = require('../database/models/Streams');
+const Products      = require('../database/models/Products');
+const isManager     = require('../middlewares/isManager');
+const paginate      = require('../utils/paginate');
+const getRoleValue  = require('../utils/getRoleValue');
 
 // Новости
 // Получить новости по страницам
@@ -112,7 +112,7 @@ _route.post('/role/edit', async (req, res) => {
         if(role != 'user' && role != 'admin' && role != 'moder'){ return res.status(400).json({ message: "Неверная роль", message_en: "Invalid role" }); }
         let user = await User.findOne({ where: { email } });
         if(!user){ return res.status(400).json({ message: "Пользователь не найден", message_en: "User not found" }); }
-        if(user.role >= req.user.role){ return res.status(403).json({ message: "Недостаточно прав", message_en: "Not enough rights" });}
+        if(getRoleValue(user.role) >= getRoleValue(req.user.role)){ return res.status(403).json({ message: "Недостаточно прав", message_en: "Not enough rights" });}
         user.role = role;
         await user.save();
         let roleText = (role == 'user') ? 'пользователя' : (role == 'moder') ? 'модератора' : 'администратора';
