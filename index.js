@@ -17,6 +17,10 @@ const News          = require('./database/models/News');
 const Donate        = require('./database/models/Donate');
 const Streams       = require('./database/models/Streams');
 const Products      = require('./database/models/Products');
+const Skins         = require('./database/models/Skins');
+const Players       = require('./database/models/Players');
+const Unitpay       = require('./database/models/Unitpay');
+const EnotIO        = require('./database/models/Enotio');
 
 // Routes
 const AuthRoute     = require('./routes/authorization');
@@ -43,7 +47,7 @@ moment.locale('ru');
 // Use middlewares
 app.use(helmet());
 app.use(cors());
-app.use(bodyParse.urlencoded({extended: true}));
+app.use(bodyParse.urlencoded({ extended: true }));
 app.use(bodyParse.json({ strict: true }));
 app.use(parseToken);
 app.use(logger);
@@ -78,6 +82,14 @@ server.listen(config.server.port, async () => {
         console.log(`Streams sync successful`);
         await Products.sync();
         console.log(`Products sync successful`);
+        await Skins.sync({ alter: true });
+        console.log(`Skins sync successful`);
+        await Players.sync({ alter: true });
+        console.log(`Players sync successful`);
+        await Unitpay.sync({ alter: true });
+        console.log(`Unitpay sync successful`);
+        await EnotIO.sync({ alter: true });
+        console.log(`EnotIO sync successful`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }
