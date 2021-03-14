@@ -1,7 +1,7 @@
 [
     {
         "name": "Server #1",
-        "table_name": "serverOne_permissions_inheritance",
+        "table_name": "serverone_permissions_inheritance",
         "model_name": "server_one",
         "type": "pex",
         "address": "mc.hypixel.net",
@@ -9,7 +9,7 @@
     },
     {
         "name": "Server #2",
-        "table_name": "serverTwo_user_permissions",
+        "table_name": "servertwo_user_permissions",
         "model_name": "server_two",
         "type": "luckyperms",
         "address": "mc.hypixel.net",
