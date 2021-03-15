@@ -14,6 +14,7 @@ const User = sequelize.define('User', {
             this.setDataValue('password', hash);
         }
     },
+    ref_code:   { type: Types.STRING, allowNull: false },
     emailCode:  { type: Types.INTEGER, allowNull: true },
     tfaSecret:  { type: Types.STRING, allowNull: true },
     tfaType:    { type: Types.STRING, defaultValue: 'none' },
