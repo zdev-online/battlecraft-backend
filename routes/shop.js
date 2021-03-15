@@ -72,6 +72,11 @@ _route.post('/:id/buy', ifAuthed, async (req, res) => {
                         user.crystals -= count;
                         await user.save();
                         await data.save();
+                        let donate = await Donate.findOne({ login: req.user.login, server: srvId });
+                        if(!donate){ donate = Donate.build({ login: req.user.login }) }
+                        donate.expires  = new Date().getTime() + Number(2592000000);
+                        donate.server   = srvId;
+                        await donate.save();
                         return res.json({ privilege: req.body.privilege });
                     }
                     case 'luckyperms': {
@@ -82,14 +87,55 @@ _route.post('/:id/buy', ifAuthed, async (req, res) => {
                         user.crystals -= count;
                         await user.save();
                         await data.save();
-                        return res.json({ privilege: req.body.privilege })
+                        let donate = await Donate.findOne({ login: req.user.login, server: srvId });
+                        if(!donate){ donate = Donate.build({ login: req.user.login }) }
+                        donate.expires  = new Date().getTime() + Number(2592000000);
+                        donate.server   = srvId;
+                        await donate.save();
+                        return res.json({ privilege: req.body.privilege });
                     }
-                    default: { return res.status(404).json({ message: "Неизвестный тип сервера", message_en: "Unknown server type" }); }
+                    default: { res.status(404).json({ message: "Неизвестный тип сервера", message_en: "Unknown server type" }); }
                 }
             }
             default: { return res.status(500).json({ message_en: 'Server error', message: 'Ошибка на стороне сервера'}); }
         }
     } catch (error) { return errorHear.hear(res, error); }
 });
+
+setInterval(async () => {
+    try {
+        // Находим всех донатеров, где срок конца меньше, чем текущая дата
+        let donate = await Donate.findAll({ 
+            where: { 
+                expires: {
+                    $lte: new Date().getTime() 
+                }
+            }
+        });
+        // Перебираем просроченных-донатеров :)
+        for (let i = 0; i < donate.length; i++) {
+            // Получаем объект модели и типа таблицы
+            let db = Permissions[donate[i].server];
+            // Если нет, кидаем ошибку, т.к исключений не должно быть
+            if(!db){ throw `Сервер не найден в servers.json, но найден в donate.sql`; }
+            // Деструктурируем объект модели
+            let { db: model, type } = db;
+            // В зависимости от типа таблицы, выполняем то или иное действие
+            switch(type){
+                case 'pex': {
+                    await model.destroy({ where: { child: req.user.login } });
+                    break;
+                }
+                case 'luckyperms': {
+                    await model.destroy({ where: { uuid: req.user.login } });
+                    break;
+                }
+                default: { throw `Тип не найден в servers.json, но найден в Donate.js`; }
+            }
+            // В конце удаляем из просроченных-донатеров пользователя
+            await donate[i].destroy();
+        }
+    } catch (error) { console.error(`Ошибка проверки просроченности доната: ${error.message}\n${error.stack}`); }
+}, 1000 * 60 * 60 * 12);
 
 module.exports = _route;

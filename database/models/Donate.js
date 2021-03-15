@@ -3,7 +3,12 @@ const { sequelize, DataTypes:Types }  = require('../database');
 const Donate = sequelize.define('Donate', {
    id: {
        type: Types.BIGINT,
-       primaryKey: true
+       primaryKey: true,
+       autoIncrement: true
+   },
+   login: {
+        type: Types.STRING,
+        allowNull: false
    },
    expires: {
        type: Types.BIGINT,
