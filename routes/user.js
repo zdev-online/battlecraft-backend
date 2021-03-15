@@ -15,11 +15,16 @@ const fs            = require('fs');
 // Запрос на добавление \ сброс 2-х факторной аунтентификации
 _route.get('/2fa', async (req, res) => {
     try {
+        // Если не указан тип 2fa-авторизации - ошибка
         if(!req.query.type){ return res.status(400).json({ message: "Не указан тип 2FA", message_en: "2FA type not specified"}); }
         
+        // Деструктуризируем объект данных
         let { type }    = req.query;
+        // Получаем пользователя
         let user        = await User.findOne({where: { email: req.user.email }});
+        // Проверяем тип и в зависимость от типа - выполняем то или иное действие
         switch (type) {
+            // Google Auth
             case 'google': { 
                 // 2FA по Google-Auth
                 let data    = await tfa.generateQrCode();
@@ -44,12 +49,16 @@ _route.get('/2fa', async (req, res) => {
                 user.tfaType    = 'none';
                 user.tfaSecret  = '';
                 user.emailCode  = 0;
+                // Сохранение пользователя
                 await user.save();
                 user = user.toJSON();
+                // Генерация токена
                 let token       = jwt.getToken(user);
+                // Удаление секретных данных
                 delete user.tfaSecret;
                 delete user.emailCode;
                 delete user.password;
+                // Отдаем клиенту
                 return res.json({ token, user });
             }
             default: return res.status(404).json({ message: "Неизвеcтный 2FA тип", message_en: "Unknown 2FA type" });                      
@@ -60,21 +69,34 @@ _route.get('/2fa', async (req, res) => {
 // Подтверждения запроса на 2-х факторную аунтентификацию
 _route.post('/2fa/confirm', async (req, res) => {
     try {
+        // Проверка на то - все ли данные пришли
         if(!req.body.code){ return res.status(400).json({ message: 'Неверный код подтверждения', message_en: "Invalid confirm code"}); }
+        // Проверяем есть ли в ожидающих подтверждения 2fa-авторизации акканут пользователя
         let temp2fa = await Temp2fa.findOne({ where: { userId: req.user.id }});
+        // Если нет - ошибка
         if(!temp2fa){ return res.status(404).json({ message: "Запроса на 2FA активацию не было", message_en: "No request to activate 2-factor authorization"});}
+        // Если тип 2fa - google auth
         if(temp2fa.tfaType == 'google'){
+            // Проверяем текущий код с введеным, если не верен - ошибка
             if(!tfa.checkCode(req.body.code, temp2fa.tfaCode)){ return res.status(400).json({ message: 'Неверный код подтверждения', message_en: "Invalid confirm code"}); }
+            // Находим пользователя    
             let user = await User.findOne({ where: { id: req.user.id }});
+            // Записываем пользователю google 2fa-тип и секретный код
             user.tfaType    = temp2fa.tfaType;
             user.tfaSecret  = temp2fa.tfaCode;
+            // Сохраняем пользователя
             await user.save();
+            // Удаляем из ожидающих подтверждения
             await Temp2fa.destroy({ where: { userId: req.user.id }});
+            // Получаем чистый JSON-Объект пользователя
             user = user.toJSON();
+            // Генерируем токен
             let token = jwt.getToken(user);
+            // Удаляем секретные данные пользователя
             delete user.tfaSecret;
             delete user.emailCode;
             delete user.password;
+            // Отдаем клиенту
             return res.json({ token, user });
         }
     } catch (error) { return errorHelper.hear(res, error) }
@@ -83,17 +105,26 @@ _route.post('/2fa/confirm', async (req, res) => {
 // Смена пароля
 _route.post('/change/password', async (req, res) => {
     try {
+        // Проверка на то - все ли данные пришли
         if(!req.body.password){ return res.status(400).json({ message: 'Не указан текущий пароль', message_en: 'The current password is not specified'}); }
         if(!req.body.new_password){ return res.status(400).json({ message: 'Не указан новый пароль', message_en: 'The new-password is not specified'}); }
         if(!req.body.new_password_accept){ return res.status(400).json({ message: 'Не указан подтверждающий пароль', message_en: 'Confirmation password not specified'}); }
         
+        // Деструктуризация объекта данных
         let { password, new_password, new_password_accept } = req.body;
+        // Если новый пароль не совпадает с новым паролем-подтверждение - ошибка
         if(new_password != new_password_accept){ return res.status(400).json({ message: 'Пароли не совпадают', message_en: "Passwords don't match"})}
+        // Если длина нового пароля меньше 8 или больше 30 символов - ошибка
         if(new_password.length < 8 || new_password.length > 30){  return res.status(400).json({ message: 'Пароль не может быть больше 30 и меньше 8 символов', message_en: "The password can not be more than 30 and less than 8 characters"}) }
+        // Находим пользователя
         let user = await User.findOne({ where: { id: req.user.id } });
+        // Проверяем верен ли старый пароль    
         if(!user.isValidPassword(password)){ return  res.status(400).json({ message: 'Пароль неверный', message_en: 'Invalid password'})}
+        // Записываем новый пароль
         user.password = new_password;
+        // Сохраняем пользователя
         await user.save();
+        // Генерируем и отдаем новый токен
         let token = jwt.getToken(user.toJSON());
         return res.json({ token });
     } catch (error) { return errorHelper.hear(res, error); } 
@@ -162,5 +193,11 @@ _route.post('/change/skin', multer({
         }
     } catch (error) { return errorHelper.hear(res, error)} 
  });
+
+setInterval(async () => {
+    try {
+        await Temp2fa.destroy({ where: { expires: { $lte: new Date().getTime() } } });
+    } catch (error) { return console.error(`Ошибка удаления истекших 2fa-кодов подтверждения: ${error.message}\n${error.stack}`); }
+}, 1000 * 60 * 5);
 
 module.exports = _route;
