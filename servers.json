@@ -17,6 +17,10 @@
         "model_name": "server_two",
         "type": "luckyperms",
         "address": "mc.hypixel.net",
-        "password": "server_rcon_pass"
+        "rcon": {
+            "password": "server_rcon_pass",
+            "host": "127.0.0.1",
+            "port": 25781
+        }
     }
 ]
