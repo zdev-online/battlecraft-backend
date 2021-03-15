@@ -4,8 +4,12 @@
         "table_name": "serverone_permissions_inheritance",
         "model_name": "server_one",
         "type": "pex",
-        "address": "mc.hypixel.net",
-        "password": "root"
+        "address": "127.0.0.1:25770",
+        "rcon": {
+            "password": "server_rcon_pass",
+            "host": "127.0.0.1",
+            "port": 25781
+        }
     },
     {
         "name": "Server #2",
@@ -13,6 +17,6 @@
         "model_name": "server_two",
         "type": "luckyperms",
         "address": "mc.hypixel.net",
-        "password": "root"
+        "password": "server_rcon_pass"
     }
 ]

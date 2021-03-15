@@ -1,6 +1,6 @@
 const servers = require('../servers.json');
 const gamedig = require('gamedig');
-const Rcon    = require('modern-rcon');
+const RCON    = require('modern-rcon');
 
 const serversById = {};
 const serversInfoForClient = [];
@@ -35,8 +35,8 @@ module.exports.getServer = async (id) => {
 }
 
 module.exports.sendCommand = async (server, command) => {
-    let [ ip, port ]    = server.address.split(':');
-    let connection      = new Rcon(ip, port, server.password);
+    let { host, port, password }    = server.rcon;
+    let connection                  = new RCON(host, Number(port), password);
     await connection.connect();
     let data = await connection.send(command);
     await connection.disconnect();
