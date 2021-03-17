@@ -6,8 +6,8 @@ const Products = sequelize.define('Products', {
     type:   { type: Types.STRING, allowNull: false },
     server: { type: Types.STRING, allowNull: false },
     price:  { type: Types.BIGINT, allowNull: false },
-    command:{ type: Types.STRING, allowNull: true  },
-    image:  { type: Types.STRING, allowNull: true  }
+    data:   { type: Types.STRING, allowNull: true  },
+    image:  { type: Types.TEXT, allowNull: true  }
 }, { tableName: "products" });
 
 module.exports = Products;
