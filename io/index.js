@@ -2,7 +2,7 @@ const { Server }    = require('socket.io');
 const servers       = require('../utils/servers');
 
 const io            = new Server();
-const serversInfo   = [];
+let serversInfo     = [];
 
 io.on('connection', (socket) => {
 

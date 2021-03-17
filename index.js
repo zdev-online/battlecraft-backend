@@ -69,7 +69,6 @@ app.use((req, res) => res.status(404).json({ message: 'Путь\\Метод API 
 
 // API - Server start
 server.listen(config.server.port, async () => {
-    console.log(`API - Server > listen > ::${config.server.port}`);
     try {
         await User.sync({ alter: true, logging: false });
         console.log(`Users sync successful`);
@@ -79,9 +78,9 @@ server.listen(config.server.port, async () => {
         console.log(`Donate sync successful`);
         await News.sync({ alter: true });
         console.log(`News sync successful`);
-        await Streams.sync();
+        await Streams.sync({ alter: true });
         console.log(`Streams sync successful`);
-        await Products.sync();
+        await Products.sync({ alter: true });
         console.log(`Products sync successful`);
         await Skins.sync({ alter: true });
         console.log(`Skins sync successful`);
@@ -91,8 +90,10 @@ server.listen(config.server.port, async () => {
         console.log(`Unitpay sync successful`);
         await EnotIO.sync({ alter: true });
         console.log(`EnotIO sync successful`);
+        console.clear();
+        console.log(`API - Server > listen > ::${config.server.port}`);
     } catch (error) {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }
 });
-io.listen(http);
+io.listen(server);
