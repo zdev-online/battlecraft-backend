@@ -2,10 +2,12 @@ const _route            = require('express').Router();
 const _ifNotAuthed      = require('../middlewares/ifNotAuthed');
 const _ifAuthed         = require('../middlewares/ifAuthed');
 const User              = require('../database/models/User');
+const Refs              = require('../database/models/Referals');
 const jwt               = require('../utils/jwt');
 const tfa               = require('../utils/2fa');
 const mailer            = require('../utils/mailer');
 const errorHelper       = require('../utils/errorHear');
+const genRefCode        = require('../utils/genRefCode');
 const { Op }            = require('sequelize');
 
 // Регистрация
@@ -27,8 +29,18 @@ _route.post("/signup", _ifNotAuthed, async (req, res) => {
         if(password.length < 8 || password.length > 30){  return res.status(400).json({ message: 'Пароль не может быть больше 30 и меньше 8 символов', message_en: "The password can not be more than 30 and less than 8 characters"}) }
         if(password != password_confirm){ return res.status(400).json({message: 'Пароли не совпадают', message_en: 'Passwords don`t match'})}
         
-        let user        = await User.create({ email, login, password });
+        let ref_code    = await genRefCode(User);
+        let user        = await User.create({ email, login, password, ref_code });
         let token       = jwt.getToken(user.toJSON());
+        
+        if(req.body.ref_code){
+            let ref_owner   = await User.findOne({ where: { ref_code: req.body.ref_code } });
+            if(ref_owner){
+                let new_ref = Refs.build({ user_id: user.id, owner_id: ref_owner.id}); 
+                await new_ref.save();
+            }
+        }
+
         return res.json({ token });
     } catch (error) { return errorHelper.hear(res, error); }
 });

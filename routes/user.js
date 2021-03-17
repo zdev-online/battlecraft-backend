@@ -9,6 +9,7 @@ const User          = require('../database/models/User');
 const Temp2fa       = require('../database/models/Temp2fa');
 const Players       = require('../database/models/Players');
 const Skins         = require('../database/models/Skins');
+const Refs          = require('../database/models/Referals');
 const FormData      = require('form-data');
 const fs            = require('fs');
 
@@ -192,7 +193,16 @@ _route.post('/change/skin', multer({
             return res.status(500).json({ message: "Не удалось загрузить скин!", message_en: "Failed to load skin" });
         }
     } catch (error) { return errorHelper.hear(res, error)} 
- });
+});
+
+// Получить рефералов
+_route.get('/refs', async (req, res) => {
+    try {
+        let refs = await Refs.findAll({ where: { owner_id: req.user.id } });
+        for(let i = 0; i < refs.length; i++){ refs[i] = refs[i].toJSON(); }
+        return res.json(refs); 
+    } catch (error) { return errorHelper.hear(res, error); }
+});
 
 setInterval(async () => {
     try {
