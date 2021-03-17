@@ -141,14 +141,16 @@ _route.post('/shop/add', multer({
             return callback(new Error(`Разрешены только изображения`));
         }
     })
-}).single('image'), async (req, res) => {
+}).array('image'), async (req, res) => {
     try {
-        let { type, server:srvId, price, command, title } = req.body;
-        let image = req.file;
+        let { type, server:srvId, price, data, title } = req.body;
+        let images = req.files;
         // Провека на то есть ли title и он не пустой
         if(!title || !title.length){ return res.status(400).json({ message: "Не указано название товара", message_en: "Product type undefined" }); }
         // Провека на то есть ли type и он не пустой
         if(!type || !type.length){ return res.status(400).json({ message: "Не указан тип товара", message_en: "Product type undefined" }); }
+        // Проверка на то есть ли data и она не пустая
+        if(!data || !data.length){ return res.status(400).json({ message: "Не указана команда или привилегия", message_en: "No command or privilege specified" });} 
         // Проверка на допустимые типы
         if(type != 'item' && type != 'privilege'){ return res.status(400).json({ message: "Неверный тип товара", message_en: "Invalid product type" }); }
         // Проверка на то, определен ли сервер
@@ -158,10 +160,12 @@ _route.post('/shop/add', multer({
         // Проверка на то, что price - является целочисленной
         if(!Number.isInteger(Number(price))){ return res.status(400).json({ message: "Цена не указана", message_en: "Price undefined" }); }
         // Создание товара
+        let imgArray = images.map(img => img.filename);
+        imgArray = imgArray.join(';');
         let product = await Products.create({ 
             price, server: srvId, type, title,
-            command: command ? command : null, 
-            image: image ? image.filename : null 
+            data: data, 
+            image: images.length ? imgArray : null 
         });
         return res.json(product.toJSON());
     } catch (error) { return errorHear.hear(res, error); }
@@ -177,10 +181,10 @@ _route.post('/shop/:id/edit', multer({
         }
         return callback(new Error(`Разрешены только изображения`));
     }
-}).single('image'), async (req, res) => {
+}).array('image'), async (req, res) => {
     try {
         let { type, server:srvId, price, command, id } = req.body;
-        let image = req.file;
+        let images = req.files;
         // Проверки
         // Является ли id - целочисленной перменной
         if(!Number.isInteger(Number(id)) || !id){ return res.status(400).json({ message: "Неверный ID товара", message_en: "Invalid product ID" }); }
@@ -195,12 +199,20 @@ _route.post('/shop/:id/edit', multer({
         // Находим товар
         let product = await Products.findOne({ where: { id } });
         // Обновления
-        image && fs.unlinkSync(path.resolve('images', product.image)); 
+        if(images.length){
+            let imgs = product.image.split(';');
+            for(let i = 0; i < imgs.length; i++){
+                fs.unlinkSync(path.resolve('images', imgs[i]));
+            }
+        }
+        let imgArray = images.map(img => img.filename);
+        imgArray = imgArray.join(';');
+
         product.type    = type; 
         product.srvId   = srvId;
         product.price   = price;
         product.command = command ? command : null;
-        product.image   = image ? image.filename : null; 
+        product.image   = images.length ? imgArray : null; 
         // Сохроняем товар
         await product.save();
         return res.json(product.toJSON());
@@ -217,6 +229,12 @@ _route.post('/shop/:id/delete', async (req, res) => {
         if(!product){ return res.status(400).json({ message: "Товар не найден", message_en: "Product not found" }); }
         // Удаление товара
         product.image && fs.unlinkSync(path.resolve('images', product.image));
+        if(product.image){
+            let imgs = product.image.split(';');
+            for(let i = 0; i < imgs.length; i++){
+                fs.unlinkSync(path.resolve('images', imgs[i]));
+            }
+        }
         await product.destroy();
         return res.json({ message: "Товар удален", message_en: "Product deleted"});
     } catch (error) { return errorHear.hear(res, error); }
