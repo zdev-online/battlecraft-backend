@@ -6,6 +6,7 @@ const helmet    = require('helmet');
 const moment    = require('moment');
 const config    = require('./config.json');
 const path      = require('path');
+const io        = require('./io/index');
 
 const app       = express();
 const server    = http.createServer(app);
@@ -94,3 +95,4 @@ server.listen(config.server.port, async () => {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }
 });
+io.listen(http);
