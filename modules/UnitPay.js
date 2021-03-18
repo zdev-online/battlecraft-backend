@@ -2,7 +2,7 @@ const sha256    = require('sha256');
 const axios     = require('axios').default;
 const Unitpay   = require('../database/models/Unitpay');
 const User      = require('../database/models/User');
-const Refs      = raquire('../database/models/Referals');
+const Refs      = require('../database/models/Referals');
 const config    = require('../config.json');
 
 module.exports  = class UnitPay {
