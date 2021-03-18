@@ -2,6 +2,7 @@ const sha256    = require('sha256');
 const axios     = require('axios').default;
 const Unitpay   = require('../database/models/Unitpay');
 const User      = require('../database/models/User');
+const Refs      = raquire('../database/models/Referals');
 const config    = require('../config.json');
 
 module.exports  = class UnitPay {
@@ -48,6 +49,12 @@ module.exports  = class UnitPay {
                     let user = await User.findOne({ where: { email }});
                     if(!user){ return res.json(this.createError("Валидация заказа провалена!"))}
                     user.crystals += orderSum;
+                    let ref = await Refs.findOne({ where: { user_id: user.id } });
+                    if(ref){
+                        let ref_owner = await User.findOne({ where: { id: ref.owner_id } });
+                        ref_owner.crystals += Math.floor((orderSum / 100) * 10);
+                        await ref_owner.save();
+                    }
                     await user.save();
                     return res.json(this.createResponse("Кристаллы выданы!"));
                 }

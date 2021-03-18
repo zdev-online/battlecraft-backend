@@ -2,6 +2,7 @@ const md5       = require('md5');
 const config    = require('../config.json');
 const EnotIO    = require('../database/models/Enotio');
 const User      = require('../database/models/User');
+const Refs      = require('../database/models/Referals');
 
 module.exports  = class EnotIo {
     getSign(order_amount, payment_id){
@@ -32,6 +33,12 @@ module.exports  = class EnotIo {
             if(!payment){ return res.status(404).write('Заказ не найден'); }
             let user = await User.findOne({ where: { email: payment.email }});
             user.crystals += amount;
+            let ref = await Refs.findOne({ where: { user_id: user.id } });
+            if(ref){
+                let ref_owner = await User.findOne({ where: { id: ref.owner_id } });
+                ref_owner.crystals += Math.floor((amount / 100) * 10);
+                await ref_owner.save();
+            }
             await user.save();
             return res.write('Good'); 
         } catch (error) {
