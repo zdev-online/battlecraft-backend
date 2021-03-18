@@ -71,6 +71,25 @@ _route.post('/news/:id/delete', async (req, res) => {
         return res.json({ message: 'Новость удалена', message_en: "News deleted" });
     } catch (error) { return errorHear.hear(res, error); }
 });
+// Загрузить картинку
+_route.post('/news/upload', multer({
+    storage: multer.diskStorage({
+        destination: path.resolve('images'),
+        filename: (req, file, callback) => {
+            let type = path.extname(file.originalname);
+            let types = ['.png', '.jpg', '.jpeg', '.gif', ".webp"];
+            if(types.includes(type)){
+                return callback(null, `news_${new Date().getTime()}${type}`);
+            }
+            return callback(new Error(`Разрешены только изображения`));
+        }
+    })
+}).single('image'), async (req, res) => {
+    try {
+        if(!req.file){ return res.status(400).json({ message: "Изображение не указано", message_en: "Image not specified" }); }
+        return res.json({ filename: req.file.filename, url: `/images/${req.file.filename}` });
+    } catch (error) { return errorHear.hear(res, error); }
+});
 
 // Стримеры 
 // Получить стримеров
