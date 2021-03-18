@@ -9,13 +9,23 @@ const mailer            = require('../utils/mailer');
 const errorHelper       = require('../utils/errorHear');
 const genRefCode        = require('../utils/genRefCode');
 const { Op }            = require('sequelize');
+const axios             = require('axios').default;
+const config            = require('../config.json');
 
 // Регистрация
 _route.post("/signup", _ifNotAuthed, async (req, res) => {
     try {
+        if(!req.body.captchaToken){ return res.status(400).json({message: 'Не указана reCaptcha', message_en: 'No reCaptcha specified'}) }
         if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
         if(!req.body.login){ return res.status(400).json({message: 'Не указан логин', message_en: 'No username specified'})}
         
+        let captcha = await axios.post("https://www.google.com/recaptcha/api/siteverify", {
+            secret: config.reCaptcha.secret,
+            response: req.body.captchaToken,
+            remoteip: req.ip
+        });
+        if(!captcha.data || !captcha.data.success){ return res.status(400).json({ message: "Неверная капча", message_en: "Invalid Captha" }); } 
+
         let accountNotFree = await User.findOne({where: { [Op.or]: [{email: req.body.email}, {login: req.body.login}]  }});
         if(accountNotFree){ return res.status(403).json({ message: 'E-Mail или логин уже зарегистрованы', message_en: 'Your E-Mail or username is already registered'})}
         
