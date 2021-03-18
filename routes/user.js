@@ -134,7 +134,7 @@ _route.post('/change/password', async (req, res) => {
 // Смена почты ( Не работает (Пока что) )
 _route.post('/change/email', async (req, res) => {
    try {
-       
+       res.status(403).json({ message: "Метод не доступен", message_en: "Метод не доступен" });
    } catch (error) { return errorHelper.hear(res, error)} 
 });
 
