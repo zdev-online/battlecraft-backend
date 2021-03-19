@@ -39,5 +39,8 @@
         "secretWord": "",
         "secretWord2": "",
         "merchantId": 0
+    },
+    "reCaptcha": {
+        "secret": ""
     }
 }
