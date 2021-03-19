@@ -19,8 +19,6 @@ _route.post("/signup", _ifNotAuthed, async (req, res) => {
         if(!req.body.email){ return res.status(400).json({message: 'Не указан E-Mail', message_en: 'No E-Mail specified'})}
         if(!req.body.login){ return res.status(400).json({message: 'Не указан логин', message_en: 'No username specified'})}
 
-        console.log(req.body.captchaToken);
-
         let captcha = await axios.post("https://www.google.com/recaptcha/api/siteverify", {}, {
             params: {
                 secret: process.env.RECAPTCHA_SECRET || config.reCaptcha.secret,
