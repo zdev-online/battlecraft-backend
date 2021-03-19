@@ -96,4 +96,8 @@ server.listen(config.server.port, async () => {
         console.log(`[Model Sync] -> Error -> ${error.message}\n${error.stack}`);
     }
 });
-io.listen(server);
+io.listen(server, {
+    cors: {
+        origin: '*',
+    },
+});

@@ -7,7 +7,7 @@ let serversInfo     = [];
 io.on('connection', (socket) => {
 
     // Обновление информации о серверах!
-    socket.on('get_servers_info', socket.emit('get_servers_info', serversInfo));
+    socket.on('get_servers_info', () => socket.emit('get_servers_info', serversInfo));
 
     socket.on('disconnect', (reason) => {
         console.log(`Socket-Client disconnect: ${reason}`);
