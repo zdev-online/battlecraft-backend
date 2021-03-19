@@ -14,12 +14,16 @@ io.on('connection', (socket) => {
     });
 });
 
-setInterval(async () => {
+const fetchServersInfo = async () => {
     try {
         serversInfo = await servers.getServers();
     } catch (error) {
         console.log(`Не удалось получить информацию о серверах: ${error.message}\n${error.stack}`);  
-    }    
-}, 1000 * 60);
+    }
+
+    setInterval(fetchServersInfo, 1000 * 60);
+}
+
+fetchServersInfo();
 
 module.exports      = io;
