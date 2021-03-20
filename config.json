@@ -34,10 +34,5 @@
     "unitpay": {
         "secretKey": "",
         "projectId": 0 
-    },
-    "enotio": {
-        "secretWord": "",
-        "secretWord2": "",
-        "merchantId": 0
     }
 }

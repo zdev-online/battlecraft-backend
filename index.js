@@ -88,8 +88,6 @@ server.listen(config.server.port, async () => {
         console.log(`Players sync successful`);
         await Unitpay.sync({ alter: true });
         console.log(`Unitpay sync successful`);
-        await EnotIO.sync({ alter: true });
-        console.log(`EnotIO sync successful`);
         console.clear();
         console.log(`API - Server > listen > ::${config.server.port}`);
     } catch (error) {
