@@ -120,8 +120,8 @@ _route.post('/launcher', async (req, res) => {
     try {
         if(!req.body.username){ return res.status(400).json({ error: 'Неверный логин' }); }
         if(!req.body.password){ return res.status(400).json({ error: 'Неверный пароль' }); }
-        let {  username:email, password } = req.body;
-        let user = await User.findOne({ where: { email } });
+        let {  username:login, password } = req.body;
+        let user = await User.findOne({ where: { login } });
         if(!user){ return res.status(400).json({ error: "Аккаунт не найден" }); }
         if(!user.isValidPassword(password)){ return res.status(400).json({ error: 'Неверный пароль' }); }
         return res.json({ username: user.login, permissions: 0 });
