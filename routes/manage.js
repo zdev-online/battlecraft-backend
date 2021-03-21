@@ -146,7 +146,7 @@ _route.post('/role/edit', async (req, res) => {
 
 // Магазин
 // Получить товары
-_route.get('/shop', async (req, res) => {});
+_route.get('/shop', async (req, res) => { return res.json({}); });
 // Добавить товар
 _route.post('/shop/add', multer({
     storage: multer.diskStorage({
