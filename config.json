@@ -34,5 +34,12 @@
     "unitpay": {
         "secretKey": "",
         "projectId": 0 
+    },
+    "payeer": {
+        "account": "",
+        "apiId": 0,
+        "apiPass": "",
+        "m_shop": 0,
+        "m_desc": "Описание счета (Пример: Кристаллы на BattleCraft)"
     }
 }
