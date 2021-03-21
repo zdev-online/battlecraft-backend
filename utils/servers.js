@@ -15,13 +15,13 @@ module.exports.getServers = async () => {
     for(let i = 0; i < servers.length; i++){
         let info = await gamedig.query({ type: "minecraft", host: servers[i].address }).catch((error) => {});
         if(!info){ 
-            serversInfo.push({ inactive: true });
+            serversInfo.push({ inactive: true, name: servers[i].name, });
             continue;   
         }
         serversInfo.push({
             max_players: info.maxplayers,
             host: info.connect,
-            name: info.name,
+            name: servers[i].name,
             players: info.players.length
         });
     }

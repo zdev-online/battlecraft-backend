@@ -35,6 +35,9 @@
         "secretKey": "",
         "projectId": 0 
     },
+    "reCaptcha": {
+        "secret": ""
+    },
     "payeer": {
         "account": "",
         "apiId": 0,
