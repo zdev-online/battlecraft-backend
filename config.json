@@ -35,12 +35,14 @@
         "secretKey": "",
         "projectId": 0 
     },
-    "enotio": {
-        "secretWord": "",
-        "secretWord2": "",
-        "merchantId": 0
-    },
     "reCaptcha": {
         "secret": ""
+    },
+    "payeer": {
+        "account": "",
+        "apiId": 0,
+        "apiPass": "",
+        "m_shop": 0,
+        "m_desc": "Описание счета (Пример: Кристаллы на BattleCraft)"
     }
 }
