@@ -21,7 +21,7 @@ const Products      = require('./database/models/Products');
 const Skins         = require('./database/models/Skins');
 const Players       = require('./database/models/Players');
 const Unitpay       = require('./database/models/Unitpay');
-const EnotIO        = require('./database/models/Enotio');
+const Qiwi          = require('./database/models/Qiwi');
 
 // Routes
 const AuthRoute     = require('./routes/authorization');
@@ -88,6 +88,8 @@ server.listen(config.server.port, async () => {
         console.log(`Players sync successful`);
         await Unitpay.sync({ alter: true });
         console.log(`Unitpay sync successful`);
+        await Qiwi.sync({ alter: true });
+        console.log(`Qiwi sync successful`);
         console.clear();
         console.log(`API - Server > listen > ::${config.server.port}`);
     } catch (error) {
