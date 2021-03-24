@@ -21,7 +21,7 @@ class Qiwi {
             amount,
             currency: 'RUB',
             comment: cfg.comment,
-            expirationDateTime: new Date()
+            expirationDateTime: qiwi.getLifetimeByDay(0.5)
         })        
         let userData    = await QiwiModel.create({ billId, email, amount });
         data.model      = userData;
