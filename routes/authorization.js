@@ -118,6 +118,7 @@ _route.post('/2fa', _ifNotAuthed, async (req, res) => {
 // Авторизация для лаунчера ( p.s не важен для фронта )
 _route.post('/launcher', async (req, res) => {
     try {
+        if(!config.launcher_ips.includes(req.ip)){ return res.status(400).json({ error: "BAD REQUEST" }); }
         if(!req.body.username){ return res.status(400).json({ error: 'Неверный логин' }); }
         if(!req.body.password){ return res.status(400).json({ error: 'Неверный пароль' }); }
         let {  username:login, password } = req.body;

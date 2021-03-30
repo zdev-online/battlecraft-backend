@@ -43,5 +43,6 @@
         "secret_key": "Секретный ключ QIWI",
         "successUrl": "URL успешной оплаты (Пример: https://battlecraft.com/)",
         "comment": "Комментарий к форме платежа"
-    }
+    },
+    "launcher_ips": ["127.0.0.1"]
 }
